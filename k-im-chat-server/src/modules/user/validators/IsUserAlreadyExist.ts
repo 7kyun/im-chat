@@ -1,3 +1,4 @@
+// 验证用户是否存在
 import { User } from './../user.entity';
 import {
   registerDecorator,

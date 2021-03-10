@@ -1,4 +1,4 @@
-// 密码是否相等
+// 验证密码是否相等
 import {
   registerDecorator,
   ValidationOptions,

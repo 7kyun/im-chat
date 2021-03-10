@@ -2,6 +2,7 @@ import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, MinLength } from 'class-validator';
 import { IsUserAlreadyExist } from '../validators/IsUserAlreadyExist';
 import { PasswordIsEqual } from '../validators/PasswordIsEqual';
+import { LoginCheck } from '../validators/LoginCheck';
 
 // 注册
 @InputType()
@@ -30,5 +31,6 @@ export class LoginData {
 
   @Field()
   @IsNotEmpty()
+  @LoginCheck('username')
   password: string;
 }
