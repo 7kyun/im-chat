@@ -1,3 +1,5 @@
+// 共享的  基础 entity
+
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
   BaseEntity,
@@ -14,11 +16,19 @@ export abstract class Base extends BaseEntity {
   @Field(() => Int)
   id: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamp',
+    name: 'created_at',
+    comment: '创建时间',
+  })
   @Field()
-  createdAt: Date;
+  createdAt: number;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamp',
+    name: 'updated_at',
+    comment: '更新时间',
+  })
   @Field()
-  updatedAt: Date;
+  updatedAt: number;
 }
