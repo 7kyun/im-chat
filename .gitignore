@@ -1,6 +1,9 @@
 # Env Configuration
 .env
 
+# Other
+.gitignore
+
 # IDE
 /.idea
 
