@@ -1,10 +1,11 @@
+# Env Configuration
 .env
 
 # IDE
-.idea
+/.idea
 
 # 依赖
-node_modules/
+/node_modules
 
 # 打包
-disk/
+/disk
