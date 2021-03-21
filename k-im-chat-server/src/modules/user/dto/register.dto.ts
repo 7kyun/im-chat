@@ -8,4 +8,5 @@ export class RegisterDto {
   })
   password: string;
   rePassword: string;
+  salt: string;
 }

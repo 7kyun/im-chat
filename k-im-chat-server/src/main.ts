@@ -1,14 +1,22 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import config from '../config/configuration';
 import { AppModule } from './app.module';
+import { Log4jsLogger } from '@nestx-log4js/core';
+import configuration from '../config/configuration';
 
-async function bootstrap() {
+const logger = new Logger('main.ts');
+
+const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
 
   // 使用全局验证管道中间件
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(config.port);
-}
-bootstrap();
+  // 使用log4js日志
+  app.useLogger(app.get(Log4jsLogger));
+
+  await app.listen(configuration.port);
+};
+bootstrap().then(() => {
+  logger.log(`Server started on http://localhost:${configuration.port}.`);
+});

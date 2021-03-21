@@ -10,7 +10,7 @@ export default {
     (isTestEnvironment ? process.env.TEST_APP_PORT : process.env.APP_PORT) ||
     '3000',
   auth: {
-    secretKey: process.env.JWT_SECRET_KEY || 'k7y8u2n6chat',
+    secretKey: process.env.JWT_SECRET_KEY || 'test',
   },
   typeorm: {
     db: {
