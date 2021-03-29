@@ -14,11 +14,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   // JWT验证 - Step 4: 被守卫调用
-  async validate(payload: User) {
+  async validate(user: User) {
     //console.log('JWT验证 - Step 4: 被守卫调用');
     return {
-      id: payload.id,
-      username: payload.username,
+      id: user.id,
+      username: user.username,
     };
   }
 }

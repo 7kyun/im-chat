@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegisterDto } from './dto/register.dto';
-import { ResDto } from 'src/shared/dto/res.dto';
+import { ResDto } from 'src/common/dto/res.dto';
 
 const logger = new Logger('user.service.ts');
 
@@ -16,7 +16,7 @@ export class UserService {
   ) {}
 
   /**
-   * @Description: 注册
+   * @description: 注册
    * @param {RegisterDto} registerDto
    * @author kyun
    * @date 2021/3/13
@@ -27,10 +27,10 @@ export class UserService {
       logger.log('两次输入的密码不一致');
       this.response = { code: 400, msg: '两次输入的密码不一致' };
     }
-    const user = await this.findOne(username);
+    const user = await this.userRepository.findOne({ username });
     if (user) {
       logger.log('用户已存在');
-      this.response = { code: 400, msg: '用户已存在' };
+      return { code: 400, msg: '用户已存在' };
     }
     try {
       const user: User = await this.userRepository.create(registerDto).save();
@@ -46,30 +46,46 @@ export class UserService {
   }
 
   /**
-   * @Description: 获取用户信息
+   * @description: 获取用户信息
    * @param {string} username 用户名
    * @author kyun
    * @date 2021/3/18
    */
   async getUser(username: string): Promise<ResDto> {
-    const user = await this.findOne(username);
-    if (!user) {
-      logger.log(`查无此用户`);
-      this.response = { code: 400, msg: '该用户不存在' };
-      return this.response;
-    }
-    const { password, salt, ...data } = user;
-    this.response = { code: 200, msg: '成功', data };
-    return this.response;
+    return this.findOneByName(username)
+      .then((res) => {
+        const { password, salt, createdAt, updatedAt, ...user } = res;
+        return { code: 200, msg: '成功', data: user };
+      })
+      .catch((err) => err);
   }
 
   /**
-   * @Description: 查找获取单个用户
-   * @param {string} username 用户名
+   * @description: 根据id查找获取单个用户
+   * @param {number} id 用户id
    * @author kyun
    * @date 2021/3/13
    */
-  async findOne(username: string): Promise<User | undefined> {
-    return await this.userRepository.findOne({ username });
+  async findOneById(id: number): Promise<User> {
+    const user = await this.userRepository.findOne(id);
+    if (!user) {
+      throw { code: 400, msg: '查无此用户' };
+    }
+    return user;
+  }
+
+  /**
+   * @description: 通过用户名根据id查找获取单个用户
+   * @param {number} id 用户名
+   * @author kyun
+   * @date 2021/3/13
+   */
+  async findOneByName(username: string): Promise<User> {
+    console.log(username);
+    const user = await this.userRepository.findOne({ username });
+    if (!user) {
+      throw { code: 400, msg: '查无此用户' };
+    }
+    return user;
   }
 }

@@ -15,6 +15,9 @@ const bootstrap = async () => {
   // 使用log4js日志
   app.useLogger(app.get(Log4jsLogger));
 
+  // 允许跨域
+  app.enableCors();
+
   await app.listen(configuration.port);
 };
 bootstrap().then(() => {
