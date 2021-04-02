@@ -6,13 +6,13 @@ import {
   Post,
   Query,
   Request,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { UserService } from './user.service';
 import { LoginDto } from '../../auth/dto/login.dto';
 import { AuthService } from '../../auth/auth.service';
-import { AuthGuard } from '@nestjs/passport';
+// import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
 export class UserController {
@@ -48,7 +48,7 @@ export class UserController {
    * @returns
    */
   @Get('info')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async info(@Request() req: any): Promise<ResDto> {
     // 获取token 进行解码
     const { authorization } = req.headers;
