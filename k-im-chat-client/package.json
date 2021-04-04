@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
+    "@ant-design/icons-vue": "^6.0.1",
     "@typescript-eslint/parser": "^4.20.0",
     "ant-design-vue": "^2.1.2",
     "axios": "^0.21.1",

@@ -1,27 +1,24 @@
 <!-- Home -->
 <template>
   <div class="chat-main">
-    <transition name="popup">
-      <login v-if="show"></login>
-    </transition>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import Login from '../components/Login.vue'
+import Join from '../components/Join.vue'
 
 export default defineComponent({
   name: 'Chat',
-  components: { Login },
+  components: { Join },
   setup() {
     const store = useStore()
+    const user = computed(() => store.state.user)
 
-    const show = ref(false)
     return {
-      show
+      user
     }
   }
 })
@@ -58,25 +55,6 @@ export default defineComponent({
     filter: blur(10px);
     transform: scale(1.08);
     z-index: -1;
-  }
-
-  
-  .popup-leave-active {
-    animation: fade 1s;
-  }
-  .popup-enter-active {
-    animation: fade 1s reverse;
-  }
-}
-
-@keyframes fade {
-  from {
-    transform: translate(100%);
-    opacity: 1;
-  }
-  to {
-    transform: translate(0);
-    opacity: 0;
   }
 }
 </style>

@@ -4,7 +4,6 @@ import cookie from 'js-cookie'
 interface State {
   user: User;
   token: string;
-  loading: boolean
 }
 
 const store = createStore({
@@ -17,8 +16,7 @@ const store = createStore({
         createAt: '',
         updateAt: ''
       },
-      token: '',
-      loading: true
+      token: ''
     }
   },
   mutations: {
@@ -33,9 +31,6 @@ const store = createStore({
     'SET_TOKEN': (state: State, token: string) => {
       state.token = token
       cookie.set('token', token, { expires: 3 })
-    },
-    'SET_LOADING': (state: State, loading: boolean) => {
-      state.loading = loading
     }
   },
   actions: {
