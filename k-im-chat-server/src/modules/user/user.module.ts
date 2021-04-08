@@ -18,6 +18,6 @@ import configuration from '../../../config/configuration';
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(HashPasswordMiddleware).forRoutes('user/register');
+    consumer.apply(HashPasswordMiddleware).forRoutes('user/regist');
   }
 }

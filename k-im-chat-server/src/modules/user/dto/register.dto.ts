@@ -8,5 +8,7 @@ export class RegisterDto {
   })
   password: string;
   rePassword: string;
+  // 加密后的密码
+  hashPassword: string;
   salt: string;
 }

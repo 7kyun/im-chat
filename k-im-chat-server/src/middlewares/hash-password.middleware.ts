@@ -5,11 +5,11 @@ import { encrypt, getSalt } from '../utils/encryption';
 @Injectable()
 export class HashPasswordMiddleware implements NestMiddleware {
   use(req: Request, _res: Response, next: NextFunction) {
-    let userPassword = req.body['password'];
-    if (userPassword) {
+    const password = req.body['password'];
+    if (password) {
       const salt = getSalt();
-      userPassword = encrypt(userPassword, salt);
-      req.body['password'] = userPassword;
+      const hashPassword = encrypt(password, salt);
+      req.body['hashPassword'] = hashPassword;
       req.body['salt'] = salt;
     }
 

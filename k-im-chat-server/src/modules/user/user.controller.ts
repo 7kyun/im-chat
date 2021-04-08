@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { UserService } from './user.service';
 import { LoginDto } from '../../auth/dto/login.dto';
 import { AuthService } from '../../auth/auth.service';
+import { User } from './user.entity';
 // import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
@@ -32,9 +33,21 @@ export class UserController {
     return this.userService.getUser(username);
   }
 
-  @Post('register')
+  @Post('regist')
   async register(@Body() registerDto: RegisterDto): Promise<ResDto> {
-    return await this.userService.register(registerDto);
+    try {
+      const data: User = await this.userService.register(registerDto);
+      const token = this.authService.createToken(data);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, salt, ...user } = data;
+      return {
+        code: 200,
+        msg: '注册成功',
+        data: { token, user },
+      };
+    } catch (e) {
+      return e;
+    }
   }
 
   @Post('login')

@@ -46,7 +46,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import url('./styles/reset.scss');
+@import url('/@/styles/reset.scss');
 .app {
   display: flex;
   align-items: center;
@@ -55,7 +55,7 @@ export default defineComponent({
   min-width: 100vw;
   min-height: 100vh;
 
-  background-image: url('./assets/images/bg.png');
+  background-image: url('/@/assets/images/bg.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

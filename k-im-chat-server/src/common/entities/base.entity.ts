@@ -17,12 +17,12 @@ export abstract class Base extends BaseEntity {
     name: 'created_at',
     comment: '创建时间',
   })
-  createdAt: number;
+  createdAt: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
     name: 'updated_at',
     comment: '更新时间',
   })
-  updatedAt: number;
+  updatedAt: Date;
 }

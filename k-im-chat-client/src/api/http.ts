@@ -1,14 +1,10 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import cookie from 'js-cookie'
-import store from '../store/index'
+import store from '/@/store/index'
+import { message } from 'ant-design-vue';
+import { IResponse } from '/@/types/http';
 
-const BASE_URL: string = 'http://localhost:3001'
-
-interface IResponse {
-  code: number;
-  msg: string;
-  data?: any;
-}
+const BASE_URL: string = 'api'
 
 const http = axios.create({
   baseURL: BASE_URL,
@@ -24,18 +20,17 @@ http.interceptors.request.use(
   },
   (err: AxiosError) => {
     return Promise.reject(err)
-  } 
+  }
 )
 
 http.interceptors.response.use(
   (res: AxiosResponse) => {
-    const response: IResponse = res.data
-    if (response.code !== 200) {
-      // console.warn(response.msg)
-      return Promise.reject(response.msg)
+    if (res.data.code == 200) {
+      return Promise.resolve(res.data)
     }
-
-    return res.data
+    
+    message.error(res.data.msg)
+    return Promise.reject(res.data)
   },
   (err: AxiosError) => {
     if (err.response) {
@@ -45,6 +40,7 @@ http.interceptors.response.use(
         // router.replace({ path: 'login' }).then()
       }
     }
+    message.error('网络错误')
   }
 )
 

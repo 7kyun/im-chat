@@ -1,4 +1,4 @@
-<!-- Login -->
+<!-- 登录注册 -->
 <template>
   <div class="join">
     <a-modal 
@@ -7,65 +7,61 @@
       :visible="visible"
       :closable='false'
     >
-    <a-tabs v-model:activeKey="tabKey">
-      <a-tab-pane key="login" tab="登录" force-render>
-        <a-form
-          :form="loginForm"
-          :rules="loginRules"
-          class="login-form"
-        >
-          <a-form-item>
-            <a-input placeholder="Username" >
-              <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-input type="password" placeholder="Password" >
-              <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-button type="primary" class="login-form-button">登录</a-button>
-          </a-form-item>
-        </a-form>
-      </a-tab-pane>
-      <a-tab-pane key="regist" tab="注册" force-render>
-        <a-form
-          :form="registForm"
-          :rules="registRules"
-          class="login-form"
-        >
-          <a-form-item>
-            <a-input placeholder="Username" >
-              <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-input type="password" placeholder="Password" >
-              <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-input type="password" placeholder="Comfirm Password" >
-              <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-button type="primary" class="login-form-button">注册</a-button>
-          </a-form-item>
-        </a-form>
-      </a-tab-pane>
-    </a-tabs>
+      <a-tabs v-model:activeKey="tabKey">
+        <a-tab-pane key="login" tab="登录" />
+        <a-tab-pane key="regist" tab="注册" />
+      </a-tabs>
+      <a-form
+        ref="formRef"
+        :model="formData"
+        :rules="rules"
+        class="form"
+      >
+        <a-form-item name="username">
+          <a-input  v-model:value="formData.username" placeholder="Username" >
+            <template #prefix>
+              <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
+            </template>
+            <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
+          </a-input>
+        </a-form-item>
+        <a-form-item name="password">
+          <a-input v-model:value="formData.password" type="password" placeholder="Password" >
+            <template #prefix>
+              <LockOutlined style="color: rgba(0, 0, 0, 0.25)" />
+            </template>
+          </a-input>
+        </a-form-item>
+        <a-form-item v-show="tabKey === 'regist'" name="rePassword">
+          <a-input v-model:value="formData.rePassword" type="password" placeholder="Check Password" >
+            <template #prefix>
+              <LockOutlined style="color: rgba(0, 0, 0, 0.25)" />
+            </template>
+          </a-input>
+        </a-form-item>
+        <a-form-item>
+          <a-button v-show="tabKey === 'login'" type="primary" class="form-button" @click="onLogin">登录</a-button>
+          <a-button v-show="tabKey === 'regist'" type="primary" class="form-button" @click="onRegist">注册</a-button>
+        </a-form-item>
+      </a-form>
     </a-modal>
   </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent, reactive, ref, toRefs, UnwrapRef, watchEffect } from 'vue'
+import { RuleObject } from 'ant-design-vue/es/form/interface'
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
+import cookie from 'js-cookie'
+
+import { login, regist } from '../api/modules/user'
+
 
 interface FormState {
   username: string;
   password: string;
+  rePassword: string;
 }
 
 export default defineComponent({
@@ -76,11 +72,12 @@ export default defineComponent({
       required: true
     }
   },
-  setup(props, ctx) {
-    // 控制弹窗的显隐
+  components: { UserOutlined, LockOutlined },
+  setup(props) {
+    // 监听控制弹窗的显隐
     const { show } = toRefs(props)
     const visible = ref(false)
-    const visibleWatch = watchEffect(() => {
+    watchEffect(() => {
       visible.value = show.value
     })
 
@@ -90,29 +87,28 @@ export default defineComponent({
       tabKey.value = key
     }
 
-    const loginFormRef = ref()
-    const loginForm: UnwrapRef<FormState> = reactive({
-      username: '',
-      password: ''
-    })
-    const loginRules = {
-      username: [
-        { required: true, message: '用户名不能为空', trigger: 'blur' },
-        { min: 2, max: 12, message: '用户名介于2-12位之间', trigger: 'blur' }
-      ],
-      password: [
-        { required: true, message: '密码不能为空', trigger: 'blur' },
-        { min: 6, max: 16, message: '密码介于6-16位之间', trigger: 'blur' }
-      ]
-    }
-
-    const registFormRef = ref()
-    const registForm: UnwrapRef<FormState> = reactive({
+    // 登录注册表单
+    const formRef = ref()
+    const formData: UnwrapRef<FormState> = reactive({
       username: '',
       password: '',
-      comfirmPass: ''
+      rePassword: ''
     })
-    const registRules = {
+    // 再次输入密码的验证规则
+    const validateRePass = async (rule: RuleObject, value: string) => {
+      // 登录直接通过 注册才需要验证
+      if (tabKey.value === 'login') return Promise.resolve()
+
+      if (!value) {
+        return Promise.reject('请再次输入密码')
+      } else if (value !== formData.password) {
+        return Promise.reject('两次输入的密码不一致')
+      } else {
+        return Promise.resolve()
+      }
+    }
+    // 表单验证规则
+    const rules = {
       username: [
         { required: true, message: '用户名不能为空', trigger: 'blur' },
         { min: 2, max: 12, message: '用户名介于2-12位之间', trigger: 'blur' }
@@ -121,28 +117,50 @@ export default defineComponent({
         { required: true, message: '密码不能为空', trigger: 'blur' },
         { min: 6, max: 16, message: '密码介于6-16位之间', trigger: 'blur' }
       ],
-      comfirmPass: [
-        { required: true, message: '密码不能为空', trigger: 'blur' },
-        { min: 6, max: 16, message: '密码介于6-16位之间', trigger: 'blur' }
-      ]
+      rePassword: [{ validator: validateRePass, trigger: 'blur' }]
+    }
+
+    function onLogin() {
+      formRef.value.validate()
+        .then(async (form: FormState) => {
+          const { username, password } = form
+          const res = await login({ username, password })
+          const { token, user } = res.data
+          cookie.set('token', token)
+          message.success(res.msg)
+        })
+        .catch(() => {})
+    }
+
+    function onRegist() {
+      formRef.value.validate()
+        .then(async (form: FormState) => {
+          const res = await regist(form)
+          console.log(res.data)
+          message.success(res.msg)
+        })
+        .catch(() => {})
     }
 
     return {
       visible,
       tabKey,
       tabChange,
-      loginFormRef,
-      loginForm,
-      loginRules,
-      registFormRef,
-      registForm,
-      registRules
+      formRef,
+      formData,
+      rules,
+      onLogin,
+      onRegist
     }
   }
 })
 </script>
 <style lang="scss">
-.join {
-  min-width: 300px
+.form {
+  max-width: 300px;
+
+  .form-button {
+    width: 100%;
+  }
 }
 </style>

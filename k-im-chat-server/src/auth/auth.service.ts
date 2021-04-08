@@ -18,14 +18,12 @@ export class AuthService {
   private async validateUser(
     username: string,
     password: string,
-  ): Promise<ResDto> {
-    //console.log('JWT 验证 - Step - 2: 校验用户信息');
+  ): Promise<User> {
     const user = await this.userService.findOneByName(username);
-    console.log(user);
     if (user) {
       const hashPassword = encrypt(password, user.salt);
       if (user.password === hashPassword) {
-        return { code: 200, msg: '成功', data: user };
+        return user;
       } else {
         this.response = { code: 400, msg: '密码错误' };
         throw this.response;
@@ -36,9 +34,10 @@ export class AuthService {
     }
   }
 
-  private createToken(user: User): string {
+  createToken(user: User): string {
     const payload = { username: user.username, id: user.id };
-    return this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload);
+    return `bearer ${token}`;
   }
 
   async decodeToken(token: string): Promise<any> {
@@ -57,6 +56,7 @@ export class AuthService {
       return this.userService
         .findOneById(id)
         .then((user) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { password, salt, ...data } = user;
           return { code: 200, msg: '成功', data };
         })
@@ -71,21 +71,15 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<ResDto> {
     const { username, password } = loginDto;
     return this.validateUser(username, password)
-      .then((res: ResDto) => {
-        if (res.code === 200) {
-          const user = res.data;
-          let token = this.createToken(user);
-          token = `bearer ${token}`;
-          this.response = {
-            code: 200,
-            msg: '登录成功',
-            data: { token },
-          };
-          return this.response;
-        } else {
-          this.response = res;
-          throw this.response;
-        }
+      .then((data: User) => {
+        const token = this.createToken(data);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, salt, ...user } = data;
+        return {
+          code: 200,
+          msg: '登录成功',
+          data: { token, user },
+        };
       })
       .catch((err) => err);
   }
