@@ -4,4 +4,5 @@ export class UserDto {
   avatar: string;
   createdAt: number;
   updatedAt: number;
+  version: number;
 }

@@ -5,6 +5,7 @@ import { ResDto } from '../common/dto/res.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from '../modules/user/user.entity';
 import { encrypt } from '../utils/encryption';
+import { RegisterDto } from 'src/modules/user/dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // JWT 验证 - Step - 2: 校验用户信息
   private async validateUser(
     username: string,
     password: string,
@@ -34,13 +34,17 @@ export class AuthService {
     }
   }
 
-  createToken(user: User): string {
-    const payload = { username: user.username, id: user.id };
+  private createToken(user: User): string {
+    const payload = {
+      username: user.username,
+      id: user.id,
+      version: user.version,
+    };
     const token = this.jwtService.sign(payload);
     return `bearer ${token}`;
   }
 
-  async decodeToken(token: string): Promise<any> {
+  async decodeToken(token: string): Promise<ResDto> {
     if (!token) return { code: 400, msg: '未登录' };
     if (
       token.substring(0, 7) === 'Bearer ' ||
@@ -51,36 +55,68 @@ export class AuthService {
     const { id } = this.jwtService.decode(token) as {
       username: string;
       id: number;
+      version: number;
     };
     if (id) {
-      return this.userService
-        .findOneById(id)
-        .then((user) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { password, salt, ...data } = user;
-          return { code: 200, msg: '成功', data };
-        })
-        .catch((err) => {
-          return err;
-        });
+      const user = await this.userService.findOneById(id);
+      if (user) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, salt, ...data } = user;
+        return { code: 200, msg: '成功', data };
+      } else {
+        return { code: 401, msg: '登录过期，请重新登录' };
+      }
     } else {
       return { code: 400, msg: '未登录' };
     }
   }
 
+  /**
+   * @description: 注册
+   * @param {RegisterDto} registerDto
+   * @author kyun
+   * @date 2021/3/13
+   */
+  async register(registerDto: RegisterDto): Promise<ResDto> {
+    const { username, password, rePassword, hashPassword } = registerDto;
+    if (password !== rePassword) {
+      return { code: 400, msg: '两次输入的密码不一致' };
+    }
+    const user = await this.userService.findOneByName(username);
+    if (user) {
+      return { code: 400, msg: '用户已存在' };
+    }
+    try {
+      registerDto.password = hashPassword;
+      const data = await this.userService.create(registerDto);
+      const token = this.createToken(data);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, salt, ...user } = data;
+      return { code: 200, msg: '注册成功', data: { token, user } };
+    } catch (err) {
+      return { code: 503, msg: '服务器错误' };
+    }
+  }
+
+  /**
+   * @description: 登录
+   * @param {LoginDto} loginDto
+   * @author kyun
+   * @date 2021/3/13
+   */
   async login(loginDto: LoginDto): Promise<ResDto> {
-    const { username, password } = loginDto;
-    return this.validateUser(username, password)
-      .then((data: User) => {
-        const token = this.createToken(data);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, salt, ...user } = data;
-        return {
-          code: 200,
-          msg: '登录成功',
-          data: { token, user },
-        };
-      })
-      .catch((err) => err);
+    try {
+      let data: User = await this.validateUser(
+        loginDto.username,
+        loginDto.password,
+      );
+      data = await this.userService.updateVersion(data);
+      const token = this.createToken(data);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, salt, ...user } = data;
+      return { code: 200, msg: '登录成功', data: { token, user } };
+    } catch (e) {
+      return e;
+    }
   }
 }

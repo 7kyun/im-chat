@@ -1,5 +1,5 @@
 import { Base } from 'src/common/entities/base.entity';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, VersionColumn } from 'typeorm';
 
 @Entity()
 export class User extends Base {
@@ -23,4 +23,10 @@ export class User extends Base {
     default: 'default.png',
   })
   avatar: string;
+
+  @VersionColumn({
+    type: 'int',
+    comment: '版本号',
+  })
+  version: number;
 }
