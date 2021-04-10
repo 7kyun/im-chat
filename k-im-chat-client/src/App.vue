@@ -12,13 +12,15 @@
 <script lang="ts">
 import { computed, defineComponent, Ref, ref } from 'vue'
 import { Store, useStore } from 'vuex'
+import cookie from 'js-cookie'
 
 import Join from './components/Join.vue'
 
 async function getInfo(store: Store<any>, loading: Ref<boolean>) {
   try {
     loading.value = true
-    await store.dispatch('app/getInfo')
+    const user = await store.dispatch('app/getInfo')
+    cookie.set('user', user)
     loading.value = false
   } catch (e) {
     loading.value = false

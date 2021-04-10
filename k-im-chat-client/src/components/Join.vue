@@ -131,6 +131,7 @@ export default defineComponent({
           const data = await store.dispatch('app/login', { username, password })
           const { token, user } = data
           cookie.set('token', token)
+          cookie.set('user', user)
           message.success('登录成功')
         })
         .catch(() => {})
@@ -142,6 +143,7 @@ export default defineComponent({
           const data = await store.dispatch('app/regist', form)
           const { token, user } = data
           cookie.set('token', token)
+          cookie.set('user', user)
           message.success('注册成功')
         })
         .catch(() => {})
