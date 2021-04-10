@@ -12,7 +12,7 @@
 <script lang="ts">
 import { computed, defineComponent, Ref, ref } from 'vue'
 import { Store, useStore } from 'vuex'
-import { getInfo } from './api/modules/user'
+import { getInfo } from './api/modules/auth'
 
 import Join from './components/Join.vue'
 

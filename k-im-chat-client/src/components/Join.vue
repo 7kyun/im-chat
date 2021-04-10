@@ -55,7 +55,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import cookie from 'js-cookie'
 
-import { login, regist } from '../api/modules/user'
+import { login, regist } from '../api/modules/auth'
 
 
 interface FormState {
