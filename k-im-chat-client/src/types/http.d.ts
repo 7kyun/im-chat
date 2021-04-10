@@ -17,5 +17,5 @@ declare module 'axios' {
 interface IResponse<T = any> {
   code: number;
   msg: string;
-  data?: T;
+  data: T;
 }

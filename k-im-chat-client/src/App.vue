@@ -4,37 +4,29 @@
       <router-view />
     </div>
     <join
-      :show="!user.id && !loading"
+      :show="!user.id"
     ></join>
   </a-spin>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, Ref, ref } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { Store, useStore } from 'vuex'
-import cookie from 'js-cookie'
 
 import Join from './components/Join.vue'
 
-async function getInfo(store: Store<any>, loading: Ref<boolean>) {
-  try {
-    loading.value = true
-    const user = await store.dispatch('app/getInfo')
-    cookie.set('user', user)
-    loading.value = false
-  } catch (e) {
-    loading.value = false
-  }
+async function getInfo(store: Store<any>) {
+  await store.dispatch('app/getInfo')
 }
 
 export default defineComponent({
   name: 'App',
   components: { Join },
   setup() {
-    const loading = ref(false)
     const store = useStore()
     // 设置用户信息
-    getInfo(store, loading)
+    getInfo(store)
+    const loading = computed(() => store.state.app.loading)
     const user = computed(() => store.state.app.user)
     
     return {

@@ -1,6 +1,7 @@
 export interface AppState {
   user: User;
   token: string;
+  loading: boolean;
 }
 
 const appState: AppState = {
@@ -12,7 +13,8 @@ const appState: AppState = {
     updateAt: '',
     version: '',
   },
-  token: ''
+  token: '',
+  loading: false
 };
 
 export default appState;

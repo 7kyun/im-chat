@@ -54,10 +54,6 @@ import { useStore } from 'vuex'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import cookie from 'js-cookie'
-
-import { login, regist } from '../api/modules/auth'
-
 
 interface FormState {
   username: string;
@@ -124,29 +120,22 @@ export default defineComponent({
       rePassword: [{ validator: validateRePass, trigger: 'blur' }]
     }
 
-    function onLogin() {
-      formRef.value.validate()
-        .then(async (form: FormState) => {
-          const { username, password } = form
-          const data = await store.dispatch('app/login', { username, password })
-          const { token, user } = data
-          cookie.set('token', token)
-          cookie.set('user', user)
-          message.success('登录成功')
-        })
-        .catch(() => {})
+    // 登录
+    async function onLogin() {
+      try {
+        const form: FormState = await formRef.value.validate()
+        await store.dispatch('app/login', form)
+        message.success('注册成功')
+      } catch (e) {}
     }
 
-    function onRegist() {
-      formRef.value.validate()
-        .then(async (form: FormState) => {
-          const data = await store.dispatch('app/regist', form)
-          const { token, user } = data
-          cookie.set('token', token)
-          cookie.set('user', user)
-          message.success('注册成功')
-        })
-        .catch(() => {})
+    // 注册
+    async function onRegist() {
+      try {
+        const form: FormState = await formRef.value.validate()
+        await store.dispatch('app/regist', form)
+        message.success('注册成功')
+      } catch (e) {}
     }
 
     return {

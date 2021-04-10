@@ -6,28 +6,34 @@ import { login, regist, getInfo } from '/@/api/modules/auth';
 
 const actions: ActionTree<AppState, RootState> = {
   async register({ commit }, payload) {
-    const { data } = await regist(payload)
-    if (data) {
+    try {
+      const { data } = await regist(payload)
       commit(SET_USER, data.user);
       commit(SET_TOKEN, data.token);
       return data;
+    } catch (e) {
+      throw e
     }
   },
   async login({ commit }, payload) {
-    const { data } = await login(payload)
-    if (data) {
+    try {
+      const { data } = await login(payload)
       commit(SET_USER, data.user);
       commit(SET_TOKEN, data.token);
       return data;
+    } catch (e) {
+      throw e
     }
   },
   async getInfo({ commit }) {
-    const { data } = await getInfo()
-    if (data) {
+    try {
+      const { data } = await getInfo()
       commit(SET_USER, data);
       return data;
+    } catch (e) {
+      throw e
     }
-  },
+  }
 };
 
 export default actions;
