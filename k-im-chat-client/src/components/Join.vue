@@ -7,7 +7,7 @@
       :visible="visible"
       :closable='false'
     >
-      <a-tabs v-model:activeKey="tabKey">
+      <a-tabs v-model:activeKey="tabKey" @change="tabChange">
         <a-tab-pane key="login" tab="登录" />
         <a-tab-pane key="regist" tab="注册" />
       </a-tabs>
@@ -50,6 +50,7 @@
 
 <script lang='ts'>
 import { defineComponent, reactive, ref, toRefs, UnwrapRef, watchEffect } from 'vue'
+import { useStore } from 'vuex'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
@@ -74,6 +75,8 @@ export default defineComponent({
   },
   components: { UserOutlined, LockOutlined },
   setup(props) {
+    const store = useStore()
+
     // 监听控制弹窗的显隐
     const { show } = toRefs(props)
     const visible = ref(false)
@@ -84,6 +87,7 @@ export default defineComponent({
     // tab标签的参数
     const tabKey = ref('login')
     const tabChange = (key: string) => {
+      formRef.value.resetFields()
       tabKey.value = key
     }
 
@@ -124,10 +128,10 @@ export default defineComponent({
       formRef.value.validate()
         .then(async (form: FormState) => {
           const { username, password } = form
-          const res = await login({ username, password })
-          const { token, user } = res.data
+          const data = await store.dispatch('app/login', { username, password })
+          const { token, user } = data
           cookie.set('token', token)
-          message.success(res.msg)
+          message.success('登录成功')
         })
         .catch(() => {})
     }
@@ -135,9 +139,10 @@ export default defineComponent({
     function onRegist() {
       formRef.value.validate()
         .then(async (form: FormState) => {
-          const res = await regist(form)
-          console.log(res.data)
-          message.success(res.msg)
+          const data = await store.dispatch('app/regist', form)
+          const { token, user } = data
+          cookie.set('token', token)
+          message.success('注册成功')
         })
         .catch(() => {})
     }

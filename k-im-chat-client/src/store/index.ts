@@ -1,40 +1,20 @@
-import { createStore } from 'vuex'
-import cookie from 'js-cookie'
+import { createStore, ModuleTree } from 'vuex'
 
-interface State {
-  user: User;
-  token: string;
+// app
+import app from './modules/app';
+import { AppState } from './modules/app/state';
+
+export type RootState = {
+  app: AppState;
+};
+
+const modules: ModuleTree<RootState> = {
+  app
 }
 
 const store = createStore({
-  state(): State {
-    return {
-      user: {
-        id: '',
-        name: '',
-        avatar: '',
-        createAt: '',
-        updateAt: ''
-      },
-      token: ''
-    }
-  },
-  mutations: {
-    'SET_USER': (state: State, user: User) => {
-      state.user = user
-      cookie.set('user', user, { expires: 3650 })
-    },
-    'CLEAR_USER': (state: State, user: User) => {
-      state.user = user
-      cookie.set('user', '')
-    },
-    'SET_TOKEN': (state: State, token: string) => {
-      state.token = token
-      cookie.set('token', token, { expires: 3 })
-    }
-  },
-  actions: {
-  }
+  modules
 })
+
 
 export default store

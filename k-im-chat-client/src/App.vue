@@ -12,15 +12,13 @@
 <script lang="ts">
 import { computed, defineComponent, Ref, ref } from 'vue'
 import { Store, useStore } from 'vuex'
-import { getInfo } from './api/modules/auth'
 
 import Join from './components/Join.vue'
 
-async function setUser(store: Store<any>, loading: Ref<boolean>) {
+async function getInfo(store: Store<any>, loading: Ref<boolean>) {
   try {
     loading.value = true
-    const res = await getInfo()
-    store.commit('SET_USER', res.data)
+    await store.dispatch('app/getInfo')
     loading.value = false
   } catch (e) {
     loading.value = false
@@ -34,8 +32,8 @@ export default defineComponent({
     const loading = ref(false)
     const store = useStore()
     // 设置用户信息
-    setUser(store, loading)
-    const user = computed(() => store.state.user)
+    getInfo(store, loading)
+    const user = computed(() => store.state.app.user)
     
     return {
       loading,

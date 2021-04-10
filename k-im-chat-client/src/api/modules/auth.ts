@@ -1,11 +1,16 @@
 import http from '/@/api/http'
 import { IResponse } from '/@/types/http'
 
+export interface Join {
+  user: User;
+  token: string;
+}
+
 /**
  * @description 获取当前用户信息
  */
 export function getInfo() {
-  return http.get('auth/info')
+  return http.get<IResponse<User>>('auth/info')
 }
 
 /**
@@ -16,7 +21,7 @@ export function getInfo() {
  * @date 2021/4/10
  */
 export function login(data: { username: String; password: String }) {
-  return http.post<IResponse>('auth/login', data)
+  return http.post<IResponse<Join>>('auth/login', data)
 }
 
 /**
@@ -28,5 +33,5 @@ export function login(data: { username: String; password: String }) {
  * @date 2021/4/10
  */
 export function regist(data: { username: String; password: String; rePassword: String }) {
-  return http.post<IResponse>('auth/regist', data)
+  return http.post<IResponse<Join>>('auth/regist', data)
 }
