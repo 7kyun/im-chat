@@ -3,9 +3,7 @@
     <div class="app">
       <router-view />
     </div>
-    <join
-      :show="!user.id"
-    ></join>
+    <join :show="!user.id" />
   </a-spin>
 </template>
 

@@ -15,10 +15,8 @@ export default defineComponent({
   components: { Join },
   setup() {
     const store = useStore()
-    const user = computed(() => store.state.user)
 
     return {
-      user
     }
   }
 })

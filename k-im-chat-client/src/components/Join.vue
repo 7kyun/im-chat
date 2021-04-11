@@ -17,7 +17,7 @@
         :rules="rules"
         class="form"
       >
-        <a-form-item name="username">
+        <a-form-item :wrapperCol="{span: 24}" name="username">
           <a-input  v-model:value="formData.username" placeholder="Username" >
             <template #prefix>
               <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
@@ -25,23 +25,23 @@
             <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
           </a-input>
         </a-form-item>
-        <a-form-item name="password">
+        <a-form-item :wrapperCol="{span: 24}" name="password">
           <a-input v-model:value="formData.password" type="password" placeholder="Password" >
             <template #prefix>
               <LockOutlined style="color: rgba(0, 0, 0, 0.25)" />
             </template>
           </a-input>
         </a-form-item>
-        <a-form-item v-show="tabKey === 'regist'" name="rePassword">
+        <a-form-item :wrapperCol="{span: 24}" v-show="tabKey === 'regist'" name="rePassword">
           <a-input v-model:value="formData.rePassword" type="password" placeholder="Check Password" >
             <template #prefix>
               <LockOutlined style="color: rgba(0, 0, 0, 0.25)" />
             </template>
           </a-input>
         </a-form-item>
-        <a-form-item>
-          <a-button v-show="tabKey === 'login'" type="primary" class="form-button" @click="onLogin">登录</a-button>
-          <a-button v-show="tabKey === 'regist'" type="primary" class="form-button" @click="onRegist">注册</a-button>
+        <a-form-item :wrapperCol="{span: 24}">
+          <a-button v-show="tabKey === 'login'" type="primary" shape="round" class="btn" @click="onLogin">登录</a-button>
+          <a-button v-show="tabKey === 'regist'" type="primary" shape="round" class="btn" @click="onRegist">注册</a-button>
         </a-form-item>
       </a-form>
     </a-modal>
@@ -153,9 +153,7 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .form {
-  max-width: 300px;
-
-  .form-button {
+  .btn {
     width: 100%;
   }
 }
