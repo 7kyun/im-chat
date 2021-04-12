@@ -1,6 +1,7 @@
 <!-- Home -->
 <template>
   <div class="chat-main">
+    <tool-bar />
   </div>
 </template>
 
@@ -8,11 +9,11 @@
 import { computed, defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import Join from '../components/Join.vue'
+import ToolBar from './ToolBar.vue'
 
 export default defineComponent({
   name: 'Chat',
-  components: { Join },
+  components: { ToolBar },
   setup() {
     const store = useStore()
 
@@ -35,8 +36,7 @@ export default defineComponent({
   max-height: 900px;
   min-height: 600px;
   height: 80%;
-  margin: auto 20px;
-  padding: 10px;
+  margin: 20px;
 
   font-size: 16px;
 
