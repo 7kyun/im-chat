@@ -75,13 +75,13 @@ export default defineComponent({
 
     // 监听控制弹窗的显隐
     const { show } = toRefs(props)
-    const visible = ref(false)
+    const visible = ref<boolean>(false)
     watchEffect(() => {
       visible.value = show.value
     })
 
     // tab标签的参数
-    const tabKey = ref('login')
+    const tabKey = ref<string>('login')
     const tabChange = (key: string) => {
       formRef.value.resetFields()
       tabKey.value = key
@@ -89,7 +89,7 @@ export default defineComponent({
 
     // 登录注册表单
     const formRef = ref()
-    const formData: UnwrapRef<FormState> = reactive({
+    const formData = reactive<FormState>({
       username: '',
       password: '',
       rePassword: ''

@@ -10,6 +10,7 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { Store, useStore } from 'vuex'
+import { User } from './types/index'
 
 import Join from './components/Join.vue'
 
@@ -24,8 +25,8 @@ export default defineComponent({
     const store = useStore()
     // 设置用户信息
     getInfo(store)
-    const loading = computed(() => store.state.app.loading)
-    const user = computed(() => store.state.app.user)
+    const loading = computed<boolean>(() => store.state.app.loading)
+    const user = computed<User>(() => store.state.app.user)
     
     return {
       loading,
@@ -44,6 +45,8 @@ export default defineComponent({
   
   min-width: 100vw;
   min-height: 100vh;
+
+  color: hsla(0,0%,100%,.85);
 
   background-image: url('/@/assets/images/bg.png');
   background-size: cover;

@@ -2,6 +2,8 @@
 <template>
   <div class="chat-main">
     <tool-bar />
+    <message-list />
+    <message-wrap />
   </div>
 </template>
 
@@ -9,11 +11,13 @@
 import { computed, defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import ToolBar from './ToolBar.vue'
+import ToolBar from '../components/ToolBar.vue'
+import MessageList from '../components/MessageList.vue'
+import MessageWrap from '../components/MessageWrap.vue'
 
 export default defineComponent({
   name: 'Chat',
-  components: { ToolBar },
+  components: { ToolBar, MessageList, MessageWrap },
   setup() {
     const store = useStore()
 

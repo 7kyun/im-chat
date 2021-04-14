@@ -3,10 +3,11 @@
   <div class="tool-bar">
     <div v-if="user.id" class="info">
       <img :src="user.avatar" alt="头像" class="avatar" />
-      <span class="name">{{ user.username }}</span>
+      <!-- <span class="name">{{ user.username }}</span> -->
     </div>
 
     <div class="tool-list">
+      <PlusCircleOutlined class="tool-icon" />
       <SmileOutlined class="tool-icon" />
       <GithubOutlined class="tool-icon" />
       <PoweroffOutlined class="tool-icon" />
@@ -20,7 +21,8 @@ import { useStore } from 'vuex'
 import {
   PoweroffOutlined,
   GithubOutlined,
-  SmileOutlined
+  SmileOutlined,
+  PlusCircleOutlined,
 } from '@ant-design/icons-vue'
 
 export default defineComponent({
@@ -28,7 +30,8 @@ export default defineComponent({
   components: {
     PoweroffOutlined,
     GithubOutlined,
-    SmileOutlined
+    SmileOutlined,
+    PlusCircleOutlined
   },
   setup() {
     const store = useStore()
@@ -58,6 +61,7 @@ export default defineComponent({
     .avatar {
       width: 50px;
       height: 50px;
+      object-fit: contain;
       line-height: 55px;
       font-size: 14px;
       color: #fff;
@@ -81,7 +85,7 @@ export default defineComponent({
     flex-direction: column;
     align-items: center;
     color: #fff;
-    font-size: 30px;
+    font-size: 25px;
 
     .tool-icon {
       margin: 20px 0 10px;
