@@ -1,9 +1,9 @@
-import { RegisterDto } from './dto/register.dto';
-import { User } from './user.entity';
+import { RegisterDto } from './dtos/register.dto';
+import { User } from './entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ResDto } from 'src/common/dto/res.dto';
+import { ResDto } from 'src/common/dtos/res.dto';
 
 @Injectable()
 export class UserService {

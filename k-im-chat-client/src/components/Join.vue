@@ -125,7 +125,7 @@ export default defineComponent({
       try {
         const form: FormState = await formRef.value.validate()
         await store.dispatch('app/login', form)
-        message.success('注册成功')
+        message.success('登录成功')
       } catch (e) {}
     }
 
@@ -133,6 +133,7 @@ export default defineComponent({
     async function onRegist() {
       try {
         const form: FormState = await formRef.value.validate()
+        console.log(store)
         await store.dispatch('app/regist', form)
         message.success('注册成功')
       } catch (e) {}

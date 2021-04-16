@@ -1,4 +1,4 @@
-import { ResDto } from 'src/common/dto/res.dto';
+import { ResDto } from 'src/common/dtos/res.dto';
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';

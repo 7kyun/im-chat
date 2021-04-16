@@ -5,7 +5,7 @@ import { RootState } from '../../index';
 import { login, regist, getInfo } from '/@/api/modules/auth';
 
 const actions: ActionTree<AppState, RootState> = {
-  async register({ commit }, payload) {
+  async regist({ commit }, payload) {
     try {
       const { data } = await regist(payload)
       commit(SET_USER, data.user);

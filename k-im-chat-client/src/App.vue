@@ -11,6 +11,7 @@
 import { computed, defineComponent } from 'vue'
 import { Store, useStore } from 'vuex'
 import { User } from './types/index'
+import io from 'socket.io-client'
 
 import Join from './components/Join.vue'
 
@@ -27,6 +28,14 @@ export default defineComponent({
     getInfo(store)
     const loading = computed<boolean>(() => store.state.app.loading)
     const user = computed<User>(() => store.state.app.user)
+
+    const socket = io.connect('ws://localhost:3001')
+    // console.log(11111, socket)
+    socket.on('connect', () => {
+      console.log('连接成功!')
+
+      socket.on('message', msg => console.log(msg))
+    })
     
     return {
       loading,

@@ -8,7 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { UserService } from 'src/modules/user/user.service';
 import { HashPasswordMiddleware } from 'src/middlewares/hash-password.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/modules/user/user.entity';
+import { User } from 'src/modules/user/entities/user.entity';
 
 @Module({
   imports: [
