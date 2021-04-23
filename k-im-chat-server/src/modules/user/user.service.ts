@@ -65,7 +65,7 @@ export class UserService {
     const data = await this.findOneByName(username);
     if (data) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, salt, createdAt, updatedAt, ...user } = data;
+      const { password, salt, createdAt, ...user } = data;
       return { code: 200, msg: '成功', data: user };
     } else {
       return { code: 400, msg: '查无此用户' };

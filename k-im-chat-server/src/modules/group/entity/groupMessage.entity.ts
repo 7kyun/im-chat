@@ -1,17 +1,18 @@
 import { Base } from 'src/common/entities/base.entity';
 import { Entity, Column } from 'typeorm';
 
+// 群组消息表
 @Entity()
-export class FriendMessage extends Base {
+export class GroupMessage extends Base {
   @Column({
     comment: '用户id',
   })
-  uid: number;
+  uid: string;
 
   @Column({
-    comment: '好友的用户id',
+    comment: '群组id',
   })
-  fuid: number;
+  gid: string;
 
   @Column({
     comment: '消息内容',

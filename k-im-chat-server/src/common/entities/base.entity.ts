@@ -1,28 +1,17 @@
 // 共享的  基础 entity
-import {
-  BaseEntity,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { getNow } from 'src/utils/util';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export abstract class Base extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn({
-    type: 'timestamp',
+  @Column({
+    type: 'int',
     name: 'created_at',
     comment: '创建时间',
+    default: getNow(),
   })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    name: 'updated_at',
-    comment: '更新时间',
-  })
-  updatedAt: Date;
+  createdAt: number;
 }

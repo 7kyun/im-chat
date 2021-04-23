@@ -3,6 +3,5 @@ export class UserDto {
   username: string;
   avatar: string;
   createdAt: number;
-  updatedAt: number;
   version: number;
 }

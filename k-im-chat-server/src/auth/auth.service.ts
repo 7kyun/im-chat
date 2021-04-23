@@ -45,7 +45,7 @@ export class AuthService {
   }
 
   async decodeToken(token: string): Promise<ResDto> {
-    if (!token) return { code: 400, msg: '未登录' };
+    if (!token) return { code: 401, msg: '未登录' };
     if (
       token.substring(0, 7) === 'Bearer ' ||
       token.substring(0, 7) === 'bearer '
@@ -67,7 +67,7 @@ export class AuthService {
         return { code: 401, msg: '登录过期，请重新登录' };
       }
     } else {
-      return { code: 400, msg: '未登录' };
+      return { code: 401, msg: '未登录' };
     }
   }
 
