@@ -1,3 +1,5 @@
+import { User } from "/@/types/user";
+
 export interface AppState {
   user: User;
   token: string;

@@ -7,7 +7,7 @@
     </div>
 
     <div class="tool-list">
-      <PlusCircleOutlined class="tool-icon" />
+      <PlusCircleOutlined class="tool-icon" @click="addFriend" />
       <SmileOutlined class="tool-icon" />
       <GithubOutlined class="tool-icon" />
       <PoweroffOutlined class="tool-icon" />
@@ -36,9 +36,16 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const user = computed(() => store.state.app.user)
+    const socket = computed(() => store.state.chat.socket)
+    const addFriend = () => {
+      // console.log(user.value)
+      console.log(socket.value)
+      socket.value.emit('addFriend', { uid: 1, fuid: 2 })
+    }
 
     return {
-      user
+      user,
+      addFriend
     }
   }
 })

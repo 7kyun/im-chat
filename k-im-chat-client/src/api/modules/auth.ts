@@ -1,5 +1,6 @@
 import http from '/@/api/http'
 import { IResponse } from '/@/types/http'
+import { User } from '/@/types/user'
 
 export interface Join {
   user: User;

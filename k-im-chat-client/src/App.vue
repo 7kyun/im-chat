@@ -2,6 +2,7 @@
   <a-spin :spinning="loading">
     <div class="app">
       <router-view />
+      <button @click="add">添加</button>
     </div>
     <join :show="!user.id" />
   </a-spin>
@@ -10,8 +11,7 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { Store, useStore } from 'vuex'
-import { User } from './types/index'
-import io from 'socket.io-client'
+import { User } from './types/user'
 
 import Join from './components/Join.vue'
 
@@ -29,17 +29,21 @@ export default defineComponent({
     const loading = computed<boolean>(() => store.state.app.loading)
     const user = computed<User>(() => store.state.app.user)
 
-    const socket = io.connect('ws://localhost:3001')
-    // console.log(11111, socket)
-    socket.on('connect', () => {
-      console.log('连接成功!')
+    const ws = computed<any>(() => store.state.chat.socket)
 
-      socket.on('message', msg => console.log(msg))
-    })
-    
+    const add = () => {
+      const socket = ws.value
+      if (!socket) return
+      socket.emit('addFriend', {
+        uid: user.value.id,
+        fuid: 2
+      })
+    }
+
     return {
       loading,
-      user
+      user,
+      add
     }
   }
 })
