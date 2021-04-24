@@ -2,7 +2,6 @@
   <a-spin :spinning="loading">
     <div class="app">
       <router-view />
-      <button @click="add">添加</button>
     </div>
     <join :show="!user.id" />
   </a-spin>
@@ -29,21 +28,9 @@ export default defineComponent({
     const loading = computed<boolean>(() => store.state.app.loading)
     const user = computed<User>(() => store.state.app.user)
 
-    const ws = computed<any>(() => store.state.chat.socket)
-
-    const add = () => {
-      const socket = ws.value
-      if (!socket) return
-      socket.emit('addFriend', {
-        uid: user.value.id,
-        fuid: 2
-      })
-    }
-
     return {
       loading,
-      user,
-      add
+      user
     }
   }
 })
