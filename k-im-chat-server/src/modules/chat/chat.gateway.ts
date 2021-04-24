@@ -33,9 +33,10 @@ export class ChatGateway {
   // socket 连接钩子
   async handleConnection(client: Socket): Promise<string> {
     const { uid } = client.handshake.query;
-    console.log('连接成功', uid);
+    console.log('连接成功: uid =', uid);
 
     if (uid) {
+      // 连接成功后加入自己的 room
       client.join(uid);
     }
 

@@ -39,7 +39,7 @@ export default defineComponent({
     const socket = computed(() => store.state.chat.socket)
     const addFriend = () => {
       // console.log(user.value)
-      console.log(socket.value)
+      // console.log(socket.value)
       socket.value.emit('addFriend', { uid: 1, fuid: 2 })
     }
 
