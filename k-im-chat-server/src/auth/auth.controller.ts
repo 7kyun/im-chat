@@ -37,6 +37,6 @@ export class AuthController {
   async info(@Request() req: any): Promise<ResDto> {
     // 获取token 进行解码
     const { authorization } = req.headers;
-    return await this.authService.decodeToken(authorization);
+    return await this.authService.getAuthInfo(authorization);
   }
 }

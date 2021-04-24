@@ -5,7 +5,6 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import configuration from '../../config/configuration';
 import { PassportModule } from '@nestjs/passport';
-import { UserService } from 'src/modules/user/user.service';
 import { HashPasswordMiddleware } from 'src/middlewares/hash-password.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/modules/user/entities/user.entity';
@@ -19,8 +18,9 @@ import { User } from 'src/modules/user/entities/user.entity';
       signOptions: { expiresIn: '3d' },
     }),
   ],
-  providers: [AuthService, JwtStrategy, UserService],
+  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

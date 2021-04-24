@@ -9,5 +9,6 @@ import { FriendService } from './friend.service';
   imports: [TypeOrmModule.forFeature([UserMap, FriendMessage])],
   controllers: [FriendController],
   providers: [FriendService],
+  exports: [FriendService],
 })
 export class FriendModule {}

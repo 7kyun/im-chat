@@ -5,3 +5,9 @@ export class UserDto {
   createdAt: number;
   version: number;
 }
+
+export class UserList {
+  page: number;
+  size: number;
+  keyword: string;
+}

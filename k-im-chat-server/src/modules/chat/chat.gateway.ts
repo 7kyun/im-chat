@@ -10,9 +10,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { UserMap } from '../friend/entities/friend.entity';
+import { Logger } from '@nestjs/common';
+// import { Logger } from '@nestjs/common';
 // import { FriendMessage } from '../friend/entities/friendMessage.entity';
 // import { Group, GroupMap } from '../group/entity/group.entity';
 // import { GroupMessage } from '../group/entity/groupMessage.entity';
+
+const logger = new Logger('chat.gateway.ts');
 
 @WebSocketGateway({ namespace: '/chat', transports: ['websocket'] })
 export class ChatGateway {
@@ -33,7 +37,8 @@ export class ChatGateway {
   // socket 连接钩子
   async handleConnection(client: Socket): Promise<string> {
     const { uid } = client.handshake.query;
-    console.log('连接成功: uid =', uid);
+    // logger.log('连接成功: uid =', uid);
+    logger.log(`连接成功: uid = ${uid}`);
 
     if (uid) {
       // 连接成功后加入自己的 room
@@ -45,7 +50,7 @@ export class ChatGateway {
 
   // socket断连钩子
   async handleDisconnect(): Promise<string> {
-    console.log('连接断开');
+    logger.log('连接断开');
 
     return '连接断开';
   }
