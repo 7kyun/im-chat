@@ -1,10 +1,9 @@
 import { User } from './entities/user.entity';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ResDto } from 'src/common/dtos/res.dto';
 import { UserList } from './dtos/user.dto';
-import { AuthService } from 'src/auth/auth.service';
 import { UserMap } from '../friend/entities/friend.entity';
 
 @Injectable()
@@ -14,7 +13,6 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserMap)
     private readonly userMapRepository: Repository<UserMap>,
-    private readonly authService: AuthService,
   ) {}
 
   /**
@@ -42,19 +40,21 @@ export class UserService {
    * @author kyun
    * @date 2021/3/18
    */
-  async getList(query: UserList, token: string): Promise<ResDto> {
+  async getList(query: UserList, authUser: AuthUser): Promise<ResDto> {
     try {
       const { page, size, keyword } = query;
-      // 获取当前用户的信息
-      const user = await this.authService.decodeToken(token);
-      const fuids = (await this.userMapRepository.find({ uid: user.id })).map(
-        (v) => v.fuid,
-      );
-      Logger.log(`fuids -> ${fuids.join(', ')}`);
-      const DB = this.userRepository
+      // 获取好友的ids
+      const fuids = (
+        await this.userMapRepository.find({ uid: authUser.id })
+      ).map((v) => v.fuid);
+      // 根据username
+      let DB = this.userRepository
         .createQueryBuilder('user')
-        .where(`user.username in %${keyword}%`)
-        .andWhere(`user.id not in (${fuids.join(',')})`);
+        .where(`user.username like ('%${keyword}%')`);
+      // 如有好友除去
+      if (fuids.length) {
+        DB = DB.andWhere(`user.id not in (${fuids.join(',')})`);
+      }
 
       const total = await DB.getCount();
       const data = await DB.skip(page)

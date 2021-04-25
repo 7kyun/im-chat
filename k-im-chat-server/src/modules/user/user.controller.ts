@@ -1,11 +1,20 @@
 import { ResDto } from 'src/common/dtos/res.dto';
-import { Controller, Get, Query, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+  Request,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UserList } from './dtos/user.dto';
+import { AuthInterceptor } from 'src/interceptor/auth.interceptor';
 
 @Controller('user')
 @UseGuards(AuthGuard('jwt'))
+@UseInterceptors(AuthInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -33,8 +42,13 @@ export class UserController {
     @Query('keyword') keyword: string,
     @Request() req: any,
   ): Promise<ResDto> {
-    const { authorization } = req.headers;
+    let authUser = req.headers.authUser;
+    if (!authUser || authUser === 'null') {
+      authUser = {};
+    } else {
+      authUser = JSON.parse(authUser);
+    }
     const data: UserList = { page, size, keyword };
-    return this.userService.getList(data, authorization);
+    return this.userService.getList(data, authUser);
   }
 }
