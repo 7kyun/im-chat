@@ -15,12 +15,12 @@ import { RootState } from '../../index';
 import io from 'socket.io-client'
 import { message } from 'ant-design-vue';
 import { IResponse } from '/@/types/http';
+import { Friend, Group } from '/@/types/chat';
 
 const actions: ActionTree<ChatState, RootState> = {
   // 初始化socket连接和监听socket事件
   async connectSocket({commit, state, dispatch, rootState}, callback) {
     let user = rootState.app.user
-    let friendMap = state.friendMap
     
     let socket: SocketIOClient.Socket = io.connect(`http://localhost:3001/chat?uid=${user.id}`, { reconnection: true, transports: ['websocket'] })
 
@@ -29,13 +29,17 @@ const actions: ActionTree<ChatState, RootState> = {
 
     socket.on('connect', () => {
       console.log('连接成功')
-      // 先保存好socket对象
 
+      // 获取聊天室所需所有信息
+      socket.emit('allData', user.id);
+
+      // 先保存好socket对象
       commit(SET_SOCKET, socket)
     })
 
     // 获取所有数据
     socket.on('allData', (res: IResponse) => {
+      // console.log(res)
       if (res.code !== 200) {
         message.error(res.msg)
       }
@@ -61,22 +65,22 @@ const actions: ActionTree<ChatState, RootState> = {
     let groupArr = payload.groupData;
     let friendArr = payload.friendData;
     if (groupArr.length) {
-      for (let group of groupArr) {
+      groupArr.map((group: Group) => {
         socket.emit('joinGroup', {
           gid: group.id,
           uid: user.id,
         });
         commit(SET_GROUP_MAP, group);
-      }
+      })
     }
     if (friendArr.length) {
-      for (let friend of friendArr) {
+      friendArr.map((friend: Friend) => {
         socket.emit('joinFriend', {
           uid: user.id,
-          fuid: friend.fuid,
+          fuid: friend.id,
         });
         commit(SET_FRIEND_MAP, friend);
-      }
+      })
     }
 
     /**
@@ -88,9 +92,8 @@ const actions: ActionTree<ChatState, RootState> = {
     let groupGather = state.groupMap;
     let friendGather = state.friendMap;
     if (!activeRoom) {
-      // 更新完数据没有默认activeRoom设置群为'阿童木聊天室'
-      // return commit(SET_ACTIVE_ROOM, groupGather[DEFAULT_GROUP]);
-      return
+      // 更新完数据没有默认activeRoom
+      return commit(SET_ACTIVE_ROOM, groupGather[1]);
     }
     commit(SET_ACTIVE_ROOM, groupGather[activeRoom.id] || friendGather[activeRoom.id]);
   },

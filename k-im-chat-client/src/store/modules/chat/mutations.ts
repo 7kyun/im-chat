@@ -14,6 +14,7 @@ import { MutationTree } from 'vuex';
 import { User } from '/@/types/user';
 
 import store from '/@/store'
+import { Friend, FriendMessage } from '/@/types/chat';
 
 const mutations: MutationTree<ChatState> = {
   // 设置 socket

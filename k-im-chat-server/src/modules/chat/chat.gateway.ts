@@ -31,12 +31,12 @@ export class ChatGateway {
     private readonly friendRepository: Repository<UserMap>,
     // @InjectRepository(FriendMessage)
     // private readonly friendMessageRepository: Repository<FriendMessage>,
-    @InjectRepository(Group)
-    private readonly groupRepository: Repository<Group>,
+    // @InjectRepository(Group)
+    // private readonly groupRepository: Repository<Group>,
     @InjectRepository(GroupMap)
     private readonly groupMapRepository: Repository<GroupMap>, // @InjectRepository(GroupMessage) // private readonly groupMessageRepository: Repository<GroupMessage>,
   ) {
-    this.defalutRoom = '公共';
+    this.defalutRoom = '大厅';
   }
 
   // socket 连接钩子
@@ -44,6 +44,9 @@ export class ChatGateway {
     const { uid } = client.handshake.query;
     // logger.log('连接成功: uid =', uid);
     logger.log(`连接成功: uid = ${uid}`);
+
+    // 连接默认房间
+    client.join(this.defalutRoom);
 
     if (uid) {
       // 连接成功后加入自己的 room
@@ -74,14 +77,9 @@ export class ChatGateway {
       let groupArr: GroupDto[] = [];
 
       // 查询用户的好友
-      const friendMap: UserMap[] = await this.friendRepository.find({
+      const friendMap = await this.friendRepository.find({
         uid: user.id,
       });
-      // 获取好友的数据
-      const friendPromise = friendMap.map(async (item: UserMap) => {
-        return await this.userRepository.findOne({ id: item.fuid });
-      });
-      const friends: FriendDto[] = await Promise.all(friendPromise);
       // 获取与好友的消息
       const friendMessagePromise = friendMap.map(async (item) => {
         const messages = await getRepository(FriendMessage)
@@ -89,7 +87,7 @@ export class ChatGateway {
           .where(
             `friendMessage.uid = ${item.uid} AND friendMessage.fuid = ${item.fuid}`,
           )
-          .where(
+          .orWhere(
             `friendMessage.uid = ${item.fuid} AND friendMessage.fuid = ${item.uid}`,
           )
           .orderBy('friendMessage.createdAt', 'DESC')
@@ -100,54 +98,64 @@ export class ChatGateway {
       const friendsMessage: Array<FriendMessageDto[]> = await Promise.all(
         friendMessagePromise,
       );
-      friends.map((friend, index) => {
+      // 获取好友的数据
+      const fuids = friendMap.map((v) => v.fuid);
+      let friends: FriendDto[] = [];
+      if (fuids.length) {
+        friends = await getRepository(User)
+          .createQueryBuilder('user')
+          .where(`user.id in (${fuids.join(',')})`)
+          .getMany();
+        friends = friends.map((user) => {
+          const { id, username, avatar } = user;
+          return { id, username, avatar };
+        });
+      }
+      // 将与好友的消息 写入 messages
+      friendArr = friends.map((friend, index) => {
         if (friendsMessage[index] && friendsMessage[index].length) {
           friend.messages = friendsMessage[index];
         }
+        return friend;
       });
-      friendArr = friends;
 
       // 查询用户的群组
       const groupMap: GroupMap[] = await this.groupMapRepository.find({
         uid: user.id,
       });
-      // 获取群组数据
-      const groupPromise = groupMap.map(async (v: GroupMap) => {
-        return await this.groupRepository.findOne({ id: v.gid });
-      });
-      const groups: GroupDto[] = await Promise.all(groupPromise);
       // 获取群组消息
       const groupMessagePromise = groupMap.map(async (item) => {
-        let groupMessage = await getRepository(GroupMessage)
+        const groupMessage = await getRepository(GroupMessage)
           .createQueryBuilder('groupMessage')
           .where(`groupMessage.gid = ${item.gid}`)
           .orderBy('groupMessage.createdAt', 'DESC') // 时间倒序先获取最新的
           .take(30) // 最新的前30条
           .getMany();
-        groupMessage = groupMessage.reverse(); // 再倒序
-        // 这里获取一下发消息的用户的用户信息
-        // for (const message of groupMessage) {
-        //   if (!userGather[message.userId]) {
-        //     userGather[message.userId] = await this.userRepository.findOne({
-        //       userId: message.userId,
-        //     });
-        //   }
-        // }
-        return groupMessage;
+        return groupMessage.reverse();
       });
       const groupsMessage: Array<GroupMessageDto[]> = await Promise.all(
         groupMessagePromise,
       );
-      groups.map((group, index) => {
+      // 获取群组的数据
+      const gids = groupMap.map((v) => v.id);
+      let groups: GroupDto[] = [];
+      if (gids.length) {
+        groups = await getRepository(Group)
+          .createQueryBuilder('group')
+          .where(`group.id in (${gids.join(',')})`)
+          .getMany();
+      }
+      // 将群组的消息 写入 messages
+      groupArr = groups.map((group, index) => {
         if (groupsMessage[index] && groupsMessage[index].length) {
           group.messages = groupsMessage[index];
         }
+        return group;
       });
-      groupArr = groups;
 
       this.server.to(`${user.id}`).emit('allData', {
         code: 200,
-        msg: '获取聊天数据成功',
+        msg: '成功',
         data: {
           groupData: groupArr,
           friendData: friendArr,
@@ -238,17 +246,16 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: UserMap,
   ): Promise<any> {
-    const uid = data.uid.toString();
-    const fuid = data.fuid.toString();
+    const { uid, fuid } = data;
     if (fuid && uid) {
       const relation = await this.friendRepository.findOne({
         uid: data.uid,
         fuid: data.fuid,
       });
-      const roomId = uid > fuid ? uid + fuid : fuid + uid;
+      const roomId = uid > fuid ? `${uid}${fuid}` : `${fuid}${uid}`;
       if (relation) {
         client.join(roomId);
-        this.server.to(uid).emit('joinFriend', {
+        this.server.to(`${uid}`).emit('joinFriend', {
           code: 200,
           msg: '成功',
           data: relation,

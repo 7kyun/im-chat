@@ -1,3 +1,5 @@
+import { Friend, FriendMap, Group, GroupMap } from "/@/types/chat";
+
 export interface ChatState {
   socket: any;
   dropped: boolean; // 掉线

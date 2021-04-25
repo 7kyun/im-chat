@@ -1,10 +1,10 @@
 // 所有好友
-interface FriendMap {
+export interface FriendMap {
   [fuid: number]: Friend
 }
 
 // 好友
-interface Friend {
+export interface Friend {
   id: number;
   username: string;
   avatar: string;
@@ -12,7 +12,7 @@ interface Friend {
 }
 
 // 好友消息
-interface FriendMessage {
+export interface FriendMessage {
   uid: number;
   fuid: number;
   content: string;
@@ -20,12 +20,12 @@ interface FriendMessage {
 }
 
 // 所有群组
-interface GroupMap {
+export interface GroupMap {
   [gid: number]: Group
 }
 
 // 群组
-interface Group {
+export interface Group {
   id: number;
   uid: number; // 群主id
   groupName: string;
@@ -35,7 +35,7 @@ interface Group {
 }
 
 // 群消息
-interface GroupMessage {
+export interface GroupMessage {
   uid: number;
   gid: number;
   content: string;

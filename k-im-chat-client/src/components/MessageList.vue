@@ -16,10 +16,10 @@
           <img class="avatar" :src="item.avatar" alt="" />
         </a-badge>
         <div class="info">
-          <div class="name">{{ item.name }}</div>
-          <div class="content" v-if="item.msg">
-            <span v-if="item.id % 2 == 1" class="text" >{{ item.msg }}</span>
-            <span v-else class="image">[图片]</span>
+          <div class="name">{{ item.username }}</div>
+          <div class="content" v-if="item.messages">
+            <span v-if="item.messages[0].messageType == 'text'" class="text" >{{ item.messages[0].content }}</span>
+            <span v-if="item.messages[0].messageType == 'image'" class="image">[图片]</span>
           </div>
         </div>
       </div>
@@ -29,25 +29,37 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, reactive, ref } from 'vue'
+import { Friend, Group } from '../types/chat'
+import { computed, defineComponent, reactive, ref } from 'vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'MessageList',
   setup() {
+    const store = useStore()
+
+    // 获取所有消息列表
+    const friendMap = computed(() => store.state.chat.friendMap)
+    const groupMap = computed(() => store.state.chat.groupMap)
+    let allList = [...friendMap.value, ...groupMap.value]
+    allList = allList.filter(v => v)
+    allList = allList.sort((a: Group | Friend, b: Group | Friend) => {
+      if (a.messages && b.messages) {
+        return b.messages[b.messages.length - 1].createdAt - a.messages[a.messages.length - 1].createdAt;
+      }
+      if (a.messages) {
+        return -1;
+      }
+      return 1;
+    })
+
+    const list = ref(allList)
+
     const keyword = ref<string>('')
     const onSearch = () => {
       if (!keyword.value.trim()) return
       console.log(keyword.value)
     }
-
-    const list = reactive([
-      { id: 0, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&0', name: '000', msg: 'chjjkxzhgkjxchkj' },
-      { id: 1, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&1', name: '111', msg: 'chjjkxzhgkjxchkj' },
-      { id: 2, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&2', name: '222', msg: 'chjjkxzhgkjxchkj' },
-      { id: 3, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&3', name: '333', msg: 'chjjkxzhgkjxchkj' },
-      { id: 4, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&4', name: '444', msg: 'chjjkxzhgkjxchkj' },
-    ])
-
 
     return {
       keyword,
