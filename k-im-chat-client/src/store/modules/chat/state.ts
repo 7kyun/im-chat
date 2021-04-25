@@ -1,5 +1,6 @@
 export interface ChatState {
   socket: any;
+  dropped: boolean; // 掉线
   activeRoom: Friend | Group | null,
   friendMap: FriendMap,
   groupMap: GroupMap
@@ -7,6 +8,7 @@ export interface ChatState {
 
 const chatState: ChatState = {
   socket: null,
+  dropped: false,
   activeRoom: null,
   friendMap: [],
   groupMap: []

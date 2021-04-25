@@ -8,7 +8,7 @@
       </div>
 
       <div class="tool-list">
-        <PlusCircleOutlined class="tool-icon" @click="() => { addDialogShow = true }" />
+        <UsergroupAddOutlined class="tool-icon" @click="() => { addDialogShow = true }" />
         <SmileOutlined class="tool-icon" />
         <GithubOutlined class="tool-icon" />
         <PoweroffOutlined class="tool-icon" />
@@ -31,7 +31,7 @@ import {
   PoweroffOutlined,
   GithubOutlined,
   SmileOutlined,
-  PlusCircleOutlined,
+  UsergroupAddOutlined,
 } from '@ant-design/icons-vue'
 
 import Add from './Add.vue'
@@ -42,7 +42,7 @@ export default defineComponent({
     PoweroffOutlined,
     GithubOutlined,
     SmileOutlined,
-    PlusCircleOutlined,
+    UsergroupAddOutlined,
     Add
   },
   setup() {

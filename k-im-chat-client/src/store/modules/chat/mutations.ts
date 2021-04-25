@@ -1,5 +1,6 @@
 import {
   SET_SOCKET,
+  SET_DROPPED,
   SET_ACTIVE_ROOM,
   SET_FRIEND_MAP,
   ADD_FRIEND_MESSAGE,
@@ -18,6 +19,16 @@ const mutations: MutationTree<ChatState> = {
   // 设置 socket
   [SET_SOCKET](state, payload) {
     state.socket = payload;
+  },
+
+  // 设置用户是否处于掉线重连状态
+  [SET_DROPPED](state, payload: boolean) {
+    state.dropped = payload;
+  },
+
+  // 设置所有的好友的用户详细信息(头像,昵称等)
+  [SET_FRIEND_MAP](state, payload: Friend) {
+    state.friendMap[payload.id] = payload
   },
 
   // 新增一条私聊消息

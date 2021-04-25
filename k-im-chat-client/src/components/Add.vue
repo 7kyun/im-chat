@@ -23,28 +23,29 @@
           @search="onSearch"
         />
 
-        <!-- 列表 -->
-        <a-list
-          :loading="loading"
-          :grid="{ gutter: 16, column: 4 }"
-          :data-source="list"
-          :pagination="pagination"
-          item-layout="horizontal"
-          class="demo-loadmore-list"
-        >
-          <template #renderItem="{ item }">
-            <a-list-item>
-              <a-card hoverable >
-                <a-card-meta :title="item.username">
-                  <a-avatar
-                    slot="avatar"
-                    src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                  />
-                </a-card-meta>
-              </a-card>
-            </a-list-item>
-          </template>
-        </a-list>
+        <div class="list">
+          <!-- 列表 -->
+          <a-list
+            :loading="loading"
+            :grid="{ gutter: 16, column: 4 }"
+            :data-source="list"
+            :pagination="pagination"
+            item-layout="horizontal"
+            class="demo-loadmore-list"
+          >
+            <template #renderItem="{ item }">
+              <a-list-item>
+                <a-card hoverable >
+                  <div class="user-info">
+                    <a-avatar :src="`http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&${item.id}`" />
+                    <span>{{ item.username }}</span>
+                    <a-button type="primary" size="small" @click="add(item.id)">添加好友</a-button>
+                  </div>
+                </a-card>
+              </a-list-item>
+            </template>
+          </a-list>
+        </div>
       </div>
     </a-modal>
   </div>
@@ -53,9 +54,10 @@
 <script lang='ts'>
 import { message } from 'ant-design-vue'
 import {
-  PlusCircleOutlined,
+  PlusCircleOutlined, UserOutlined
 } from '@ant-design/icons-vue'
-import { defineComponent, reactive, ref, toRefs, watchEffect } from 'vue'
+import { computed, defineComponent, reactive, ref, toRefs, watchEffect } from 'vue'
+import { useStore } from 'vuex'
 import { getUserList, SearchParams, SearchUser } from '../api/modules/user'
 
 interface Pagination {
@@ -68,7 +70,7 @@ interface Pagination {
 
 export default defineComponent({
   name: 'Add',
-  components: { PlusCircleOutlined },
+  components: { PlusCircleOutlined, UserOutlined },
   props: {
     show: {
       type: Boolean,
@@ -76,6 +78,9 @@ export default defineComponent({
     }
   },
   setup(props, ctx) {
+    const store = useStore()
+    const user = computed(() => store.state.app.user)
+    const socket = computed(() => store.state.chat.socket)
     // 监听控制弹窗的显隐
     const { show } = toRefs(props)
     const visible = ref<boolean>(false)
@@ -98,7 +103,7 @@ export default defineComponent({
     const hasMore = ref(false)
     // 搜索参数
     const params = reactive<SearchParams>({
-      page: 0,
+      page: 1,
       size: 8,
       keyword: '',
     })
@@ -144,6 +149,11 @@ export default defineComponent({
           break
       }
     }
+    // 点击添加好友
+    const add = (fuid: number) => {
+      socket.value.emit('addFriend', { uid: user.value.id, fuid })
+      // console.log(id)
+    }
 
     return {
       visible,
@@ -155,10 +165,23 @@ export default defineComponent({
       list,
       loading,
       hasMore,
-      pagination
+      pagination,
+      add
     }
   }
 })
 </script>
 <style lang="scss">
+.add-main {
+  .list {
+    user-select: none;
+    padding-top: 20px;
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+}
 </style>

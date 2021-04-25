@@ -7,7 +7,7 @@ export class Group extends Base {
   @Column({
     comment: '群主id',
   })
-  uid: string;
+  uid: number;
 
   @Column({
     comment: '群组名称',
@@ -27,10 +27,10 @@ export class GroupMap extends Base {
   @Column({
     comment: '群组id',
   })
-  gid: string;
+  gid: number;
 
   @Column({
     comment: '用户id',
   })
-  uid: string;
+  uid: number;
 }

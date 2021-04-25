@@ -1,4 +1,5 @@
 export const SET_SOCKET = 'set_socket'
+export const SET_DROPPED = 'set_dropped'
 export const SET_ACTIVE_ROOM = 'set_active_room'
 export const SET_FRIEND_MAP = 'set_friend_map'
 export const SET_GROUP_MAP = 'set_group_map'

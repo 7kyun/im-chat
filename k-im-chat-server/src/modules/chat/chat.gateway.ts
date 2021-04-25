@@ -7,14 +7,13 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { UserMap } from '../friend/entities/friend.entity';
+import { FriendMessage } from '../friend/entities/friendMessage.entity';
+import { Group, GroupMap } from '../group/entity/group.entity';
+import { GroupMessage } from '../group/entity/groupMessage.entity';
 import { Logger } from '@nestjs/common';
-// import { Logger } from '@nestjs/common';
-// import { FriendMessage } from '../friend/entities/friendMessage.entity';
-// import { Group, GroupMap } from '../group/entity/group.entity';
-// import { GroupMessage } from '../group/entity/groupMessage.entity';
 
 const logger = new Logger('chat.gateway.ts');
 
@@ -29,7 +28,13 @@ export class ChatGateway {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserMap)
-    private readonly friendRepository: Repository<UserMap>, // @InjectRepository(FriendMessage) // private readonly friendMessageRepository: Repository<FriendMessage>, // @InjectRepository(Group) // private readonly groupRepository: Repository<Group>, // @InjectRepository(GroupMap) // private readonly groupMapRepository: Repository<GroupMap>, // @InjectRepository(GroupMessage) // private readonly groupMessageRepository: Repository<GroupMessage>,
+    private readonly friendRepository: Repository<UserMap>,
+    // @InjectRepository(FriendMessage)
+    // private readonly friendMessageRepository: Repository<FriendMessage>,
+    @InjectRepository(Group)
+    private readonly groupRepository: Repository<Group>,
+    @InjectRepository(GroupMap)
+    private readonly groupMapRepository: Repository<GroupMap>, // @InjectRepository(GroupMessage) // private readonly groupMessageRepository: Repository<GroupMessage>,
   ) {
     this.defalutRoom = '公共';
   }
@@ -55,6 +60,102 @@ export class ChatGateway {
     return '连接断开';
   }
 
+  // 获取所有群和好友数据
+  @SubscribeMessage('allData')
+  async getAllData(
+    @ConnectedSocket() _client: Socket,
+    @MessageBody() uid: number,
+  ) {
+    const user = await this.userRepository.findOne({ id: uid });
+    if (user) {
+      // 好友数据
+      let friendArr: FriendDto[] = [];
+      // 群组数据
+      let groupArr: GroupDto[] = [];
+
+      // 查询用户的好友
+      const friendMap: UserMap[] = await this.friendRepository.find({
+        uid: user.id,
+      });
+      // 获取好友的数据
+      const friendPromise = friendMap.map(async (item: UserMap) => {
+        return await this.userRepository.findOne({ id: item.fuid });
+      });
+      const friends: FriendDto[] = await Promise.all(friendPromise);
+      // 获取与好友的消息
+      const friendMessagePromise = friendMap.map(async (item) => {
+        const messages = await getRepository(FriendMessage)
+          .createQueryBuilder('friendMessage')
+          .where(
+            `friendMessage.uid = ${item.uid} AND friendMessage.fuid = ${item.fuid}`,
+          )
+          .where(
+            `friendMessage.uid = ${item.fuid} AND friendMessage.fuid = ${item.uid}`,
+          )
+          .orderBy('friendMessage.createdAt', 'DESC')
+          .take(30)
+          .getMany();
+        return messages.reverse();
+      });
+      const friendsMessage: Array<FriendMessageDto[]> = await Promise.all(
+        friendMessagePromise,
+      );
+      friends.map((friend, index) => {
+        if (friendsMessage[index] && friendsMessage[index].length) {
+          friend.messages = friendsMessage[index];
+        }
+      });
+      friendArr = friends;
+
+      // 查询用户的群组
+      const groupMap: GroupMap[] = await this.groupMapRepository.find({
+        uid: user.id,
+      });
+      // 获取群组数据
+      const groupPromise = groupMap.map(async (v: GroupMap) => {
+        return await this.groupRepository.findOne({ id: v.gid });
+      });
+      const groups: GroupDto[] = await Promise.all(groupPromise);
+      // 获取群组消息
+      const groupMessagePromise = groupMap.map(async (item) => {
+        let groupMessage = await getRepository(GroupMessage)
+          .createQueryBuilder('groupMessage')
+          .where(`groupMessage.gid = ${item.gid}`)
+          .orderBy('groupMessage.createdAt', 'DESC') // 时间倒序先获取最新的
+          .take(30) // 最新的前30条
+          .getMany();
+        groupMessage = groupMessage.reverse(); // 再倒序
+        // 这里获取一下发消息的用户的用户信息
+        // for (const message of groupMessage) {
+        //   if (!userGather[message.userId]) {
+        //     userGather[message.userId] = await this.userRepository.findOne({
+        //       userId: message.userId,
+        //     });
+        //   }
+        // }
+        return groupMessage;
+      });
+      const groupsMessage: Array<GroupMessageDto[]> = await Promise.all(
+        groupMessagePromise,
+      );
+      groups.map((group, index) => {
+        if (groupsMessage[index] && groupsMessage[index].length) {
+          group.messages = groupsMessage[index];
+        }
+      });
+      groupArr = groups;
+
+      this.server.to(`${user.id}`).emit('allData', {
+        code: 200,
+        msg: '获取聊天数据成功',
+        data: {
+          groupData: groupArr,
+          friendData: friendArr,
+        },
+      });
+    }
+  }
+
   // 添加好友
   @SubscribeMessage('addFriend')
   async addFriend(
@@ -62,6 +163,7 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
   ) {
     const { uid, fuid } = data;
+    console.log(uid, fuid);
     try {
       if (uid && fuid) {
         const user = await this.userRepository.findOne({ id: uid });
@@ -93,11 +195,6 @@ export class ChatGateway {
             data: data,
           });
         }
-        if (!friend) {
-          return this.server
-            .to(uid + '')
-            .emit('addFriend', { code: 400, msg: '该用户不存在', data: '' });
-        }
         // 双方都添加好友 并存入数据库
         await this.friendRepository.save(data);
         const friendData = JSON.parse(JSON.stringify(data));
@@ -125,10 +222,38 @@ export class ChatGateway {
         });
         return;
       } else {
-        throw '';
+        throw '添加好友失败';
       }
     } catch (e) {
-      return { code: 400, msg: '添加好友失败', data: e };
+      return this.server.emit('addFriend', {
+        code: 400,
+        msg: e,
+      });
+    }
+  }
+
+  // 加入私聊的socket连接
+  @SubscribeMessage('joinFriend')
+  async joinFriend(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: UserMap,
+  ): Promise<any> {
+    const uid = data.uid.toString();
+    const fuid = data.fuid.toString();
+    if (fuid && uid) {
+      const relation = await this.friendRepository.findOne({
+        uid: data.uid,
+        fuid: data.fuid,
+      });
+      const roomId = uid > fuid ? uid + fuid : fuid + uid;
+      if (relation) {
+        client.join(roomId);
+        this.server.to(uid).emit('joinFriend', {
+          code: 200,
+          msg: '成功',
+          data: relation,
+        });
+      }
     }
   }
 }

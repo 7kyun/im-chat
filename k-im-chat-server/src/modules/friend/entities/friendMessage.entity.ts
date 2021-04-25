@@ -17,4 +17,9 @@ export class FriendMessage extends Base {
     comment: '消息内容',
   })
   content: string;
+
+  @Column({
+    comment: '消息类型',
+  })
+  messageType: string;
 }

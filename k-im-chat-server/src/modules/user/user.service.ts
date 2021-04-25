@@ -44,20 +44,18 @@ export class UserService {
     try {
       const { page, size, keyword } = query;
       // 获取好友的ids
-      const fuids = (
+      const filterIds = (
         await this.userMapRepository.find({ uid: authUser.id })
       ).map((v) => v.fuid);
+      filterIds.unshift(authUser.id);
       // 根据username
-      let DB = this.userRepository
+      const DB = this.userRepository
         .createQueryBuilder('user')
-        .where(`user.username like ('%${keyword}%')`);
-      // 如有好友除去
-      if (fuids.length) {
-        DB = DB.andWhere(`user.id not in (${fuids.join(',')})`);
-      }
+        .where(`user.username like ('%${keyword}%')`)
+        .andWhere(`user.id not in (${filterIds.join(',')})`);
 
       const total = await DB.getCount();
-      const data = await DB.skip(page)
+      const data = await DB.skip((page - 1) * size)
         .take(size)
         .orderBy('user.id', 'ASC')
         .getMany();

@@ -7,15 +7,20 @@ export class GroupMessage extends Base {
   @Column({
     comment: '用户id',
   })
-  uid: string;
+  uid: number;
 
   @Column({
     comment: '群组id',
   })
-  gid: string;
+  gid: number;
 
   @Column({
     comment: '消息内容',
   })
   content: string;
+
+  @Column({
+    comment: '消息类型',
+  })
+  messageType: string;
 }

@@ -9,8 +9,6 @@ interface Friend {
   username: string;
   avatar: string;
   messages: FriendMessage[];
-  createdAt: number;
-  updatedAt: number;
 }
 
 // 好友消息
@@ -19,7 +17,6 @@ interface FriendMessage {
   fuid: number;
   content: string;
   createdAt: number;
-  updatedAt: number;
 }
 
 // 所有群组
@@ -35,7 +32,6 @@ interface Group {
   notice: string;
   messages: GroupMessage[];
   createdAt: number;
-  updatedAt: number;
 }
 
 // 群消息
@@ -44,5 +40,4 @@ interface GroupMessage {
   gid: number;
   content: string;
   createdAt: number;
-  updatedAt: number;
 }
