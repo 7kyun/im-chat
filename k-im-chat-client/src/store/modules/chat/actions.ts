@@ -8,14 +8,14 @@ import {
   SET_GROUP_MAP,
   ADD_GROUP_MESSAGE,
   SET_GROUP_MESSAGES
-} from './mutation-types';
-import { ActionTree } from 'vuex';
-import { ChatState } from './state';
-import { RootState } from '../../index';
+} from './mutation-types'
+import { ActionTree } from 'vuex'
+import { ChatState } from './state'
+import { RootState } from '../../index'
 import io from 'socket.io-client'
-import { message } from 'ant-design-vue';
-import { IResponse } from '/@/types/http';
-import { Friend, Group } from '/@/types/chat';
+import { message } from 'ant-design-vue'
+import { IResponse } from '/@/types/http'
+import { Friend, Group } from '/@/types/chat'
 
 const actions: ActionTree<ChatState, RootState> = {
   // 初始化socket连接和监听socket事件
@@ -31,7 +31,7 @@ const actions: ActionTree<ChatState, RootState> = {
       console.log('连接成功')
 
       // 获取聊天室所需所有信息
-      socket.emit('allData', user.id);
+      socket.emit('allData', user.id)
 
       // 先保存好socket对象
       commit(SET_SOCKET, socket)
@@ -43,8 +43,8 @@ const actions: ActionTree<ChatState, RootState> = {
       if (res.code !== 200) {
         message.error(res.msg)
       }
-      dispatch('getChatData', res.data);
-      commit(SET_DROPPED, false);
+      dispatch('getChatData', res.data)
+      commit(SET_DROPPED, false)
     });
     
     socket.on('addFriend', (res: IResponse) => {
@@ -60,17 +60,18 @@ const actions: ActionTree<ChatState, RootState> = {
   },
 
   getChatData({ commit, dispatch, state, rootState }, payload) {
-    let user = rootState.app.user;
-    let socket = state.socket;
-    let groupArr = payload.groupData;
-    let friendArr = payload.friendData;
+    let user = rootState.app.user
+    let socket = state.socket
+    let groupArr = payload.groupData
+    let friendArr = payload.friendData
     if (groupArr.length) {
       groupArr.map((group: Group) => {
         socket.emit('joinGroup', {
           gid: group.id,
           uid: user.id,
-        });
-        commit(SET_GROUP_MAP, group);
+        })
+        group.gid = group.id
+        commit(SET_GROUP_MAP, group)
       })
     }
     if (friendArr.length) {
@@ -78,8 +79,9 @@ const actions: ActionTree<ChatState, RootState> = {
         socket.emit('joinFriend', {
           uid: user.id,
           fuid: friend.id,
-        });
-        commit(SET_FRIEND_MAP, friend);
+        })
+        friend.fuid = friend.id
+        commit(SET_FRIEND_MAP, friend)
       })
     }
 
@@ -89,13 +91,13 @@ const actions: ActionTree<ChatState, RootState> = {
      */
 
     let activeRoom = state.activeRoom;
-    let groupGather = state.groupMap;
-    let friendGather = state.friendMap;
+    let groupMap = state.groupMap;
+    let friendMap = state.friendMap;
     if (!activeRoom) {
       // 更新完数据没有默认activeRoom
-      return commit(SET_ACTIVE_ROOM, groupGather[1]);
+      return commit(SET_ACTIVE_ROOM, groupMap[1]);
     }
-    commit(SET_ACTIVE_ROOM, groupGather[activeRoom.id] || friendGather[activeRoom.id]);
+    commit(SET_ACTIVE_ROOM, groupMap[activeRoom.id] || friendMap[activeRoom.id]);
   },
 };
 

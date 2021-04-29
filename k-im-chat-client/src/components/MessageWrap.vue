@@ -2,18 +2,19 @@
 <template>
   <div class="message-wrap">
     <div class="header">
-      <span>k-im-chat</span>
+      <span v-if="activeRoom">{{ activeRoom.groupName || activeRoom.username }}</span>
+      <span v-else>k-im-chat</span>
     </div>
     <div class="main">
-      <ul class="content">
-        <li v-for="item in list" :key="item.id" :class="{ msg: true, myself: item.id % 3 == 0 }">
+      <ul v-if="activeRoom && activeRoom.messages && activeRoom.messages.length" class="content">
+        <li v-for="item in activeRoom.messages" :key="item.id" :class="{ msg: true, myself: item.uid === user.id }">
           <div class="ctx">
             <div class="info">
-              <span v-if="item.id % 3 == 0" class="name">{{ item.name }}</span>
-              <img :src="item.avatar" class="avatar">
-              <span v-if="item.id % 3 !== 0" class="name">{{ item.name }}</span>
+              <span v-if="item.uid === user.id" class="name">{{ item.user.username }}</span>
+              <img :src="`${OSS_URL}/${item.user.avatar}`" class="avatar">
+              <span v-if="item.uid !== user.id" class="name">{{ item.user.username }}</span>
             </div>
-            <div class="detail">{{ item.msg }}</div>
+            <div class="detail">{{ item.content }}</div>
           </div>
         </li>
       </ul>
@@ -23,21 +24,21 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, reactive } from 'vue'
+import { computed, defineComponent } from 'vue'
+import { useStore } from 'vuex'
+import { OSS_URL } from '../utils/config'
 
 export default defineComponent({
   name: 'MessageWrap',
   setup() {
-    const list = reactive([
-      { id: 0, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&0', name: '000', msg: 'chjjkxzhgkjxchkj' },
-      { id: 1, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&1', name: '111', msg: 'sadgdbvxbcvgdt3452' },
-      { id: 2, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&2', name: '222', msg: 'cxvbxcvbxcvbdxfgdxcbcvxbxcvbxdfgser534623456ergdfcxvbxcvbxcvbdxfgdxcbcvxbxcvbxdfgser534623456ergdfcxvbxcvbxcvbdxfgdxcbcvxbxcvbxdfgser534623456ergdf' },
-      { id: 3, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&3', name: '333', msg: 'sadgdbvxbcvgdt3452sadgdbvxbcvgdt3452' },
-      { id: 4, avatar: 'http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&4', name: '444', msg: 'asdasdqw4' },
-    ])
+    const store = useStore()
+    const user = computed(() => store.state.app.user)
+    const activeRoom = computed(() => store.state.chat.activeRoom)
 
     return {
-      list
+      OSS_URL,
+      user,
+      activeRoom
     }
   }
 })
@@ -103,7 +104,8 @@ export default defineComponent({
           .detail {
             word-break: break-all;
             max-width: 60%;
-            padding: 6px;
+            min-height: 40px;
+            padding: 6px 10px;
             margin: 10px 0;
             line-height: 28px;
             font-size: 16px;

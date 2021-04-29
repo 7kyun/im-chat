@@ -18,6 +18,9 @@ const mutations: MutationTree<AppState> = {
   },
 
   [SET_USER](state, payload: User) {
+    if (payload && payload.avatar) {
+      payload.avatar = `${import.meta.env.VITE_APP_OSS_URL}/${payload.avatar}`
+    }
     state.user = payload;
     // 数据持久化
     cookie.set('user', payload, { expires: 3650 });
@@ -33,7 +36,6 @@ const mutations: MutationTree<AppState> = {
       username: '',
       avatar: '',
       createAt: '',
-      updateAt: '',
       version: '',
     };
     cookie.set('user', '');

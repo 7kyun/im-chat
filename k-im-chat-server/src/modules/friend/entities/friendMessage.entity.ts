@@ -1,5 +1,6 @@
 import { Base } from 'src/common/entities/base.entity';
-import { Entity, Column } from 'typeorm';
+import { User } from 'src/modules/user/entities/user.entity';
+import { Entity, Column, ManyToOne } from 'typeorm';
 
 @Entity()
 export class FriendMessage extends Base {
@@ -22,4 +23,14 @@ export class FriendMessage extends Base {
     comment: '消息类型',
   })
   messageType: string;
+
+  @ManyToOne(
+    () => User,
+    (user: User) => ({
+      id: user.id,
+      username: user.username,
+      avatar: user.avatar,
+    }),
+  )
+  user: FriendDto;
 }

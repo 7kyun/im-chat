@@ -14,7 +14,7 @@ import { MutationTree } from 'vuex';
 import { User } from '/@/types/user';
 
 import store from '/@/store'
-import { Friend, FriendMessage } from '/@/types/chat';
+import { Friend, FriendMessage, Group } from '/@/types/chat';
 
 const mutations: MutationTree<ChatState> = {
   // 设置 socket
@@ -25,6 +25,12 @@ const mutations: MutationTree<ChatState> = {
   // 设置用户是否处于掉线重连状态
   [SET_DROPPED](state, payload: boolean) {
     state.dropped = payload;
+  },
+  
+
+  // 设置当前聊天对象(群或好友)
+  [SET_ACTIVE_ROOM](state, payload: Friend & Group) {
+    state.activeRoom = payload;
   },
 
   // 设置所有的好友的用户详细信息(头像,昵称等)
@@ -48,7 +54,6 @@ const mutations: MutationTree<ChatState> = {
         state.friendMap[payload.fuid].messages = [payload]
       }
     }
-
   },
 
   // 设置私聊记录
@@ -61,6 +66,12 @@ const mutations: MutationTree<ChatState> = {
         state.friendMap[payload[0].fuid].messages = payload
       }
     }
+  },
+  
+
+  // 设置所有的群的群详细信息(头像,群名字等)
+  [SET_GROUP_MAP](state, payload: Group) {
+    state.groupMap[payload.id] = payload
   },
 };
 

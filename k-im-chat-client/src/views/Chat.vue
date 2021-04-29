@@ -37,9 +37,7 @@ export default defineComponent({
   max-width: 1000px;
   min-width: 800px;
   width: 100%;
-  max-height: 900px;
-  min-height: 600px;
-  height: 80%;
+  height: 600px;
   margin: 20px;
 
   font-size: 16px;

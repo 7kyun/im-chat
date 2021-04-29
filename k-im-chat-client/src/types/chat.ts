@@ -9,6 +9,7 @@ export interface Friend {
   username: string;
   avatar: string;
   messages: FriendMessage[];
+  fuid: number;
 }
 
 // 好友消息
@@ -32,6 +33,7 @@ export interface Group {
   notice: string;
   messages: GroupMessage[];
   createdAt: number;
+  gid: number;
 }
 
 // 群消息

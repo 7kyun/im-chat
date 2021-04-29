@@ -84,6 +84,12 @@ export class ChatGateway {
       const friendMessagePromise = friendMap.map(async (item) => {
         const messages = await getRepository(FriendMessage)
           .createQueryBuilder('friendMessage')
+          .leftJoinAndMapOne(
+            'friendMessage.user',
+            User,
+            'user',
+            'friendMessage.uid = user.id',
+          )
           .where(
             `friendMessage.uid = ${item.uid} AND friendMessage.fuid = ${item.fuid}`,
           )
@@ -93,6 +99,12 @@ export class ChatGateway {
           .orderBy('friendMessage.createdAt', 'DESC')
           .take(30)
           .getMany();
+        messages.map((v) => {
+          if (v.user) {
+            const { id, username, avatar } = v.user;
+            v.user = { id, username, avatar };
+          }
+        });
         return messages.reverse();
       });
       const friendsMessage: Array<FriendMessageDto[]> = await Promise.all(
@@ -127,6 +139,12 @@ export class ChatGateway {
       const groupMessagePromise = groupMap.map(async (item) => {
         const groupMessage = await getRepository(GroupMessage)
           .createQueryBuilder('groupMessage')
+          .leftJoinAndMapOne(
+            'groupMessage.user',
+            User,
+            'user',
+            'groupMessage.uid = user.id',
+          )
           .where(`groupMessage.gid = ${item.gid}`)
           .orderBy('groupMessage.createdAt', 'DESC') // 时间倒序先获取最新的
           .take(30) // 最新的前30条

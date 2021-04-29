@@ -37,7 +37,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import url('/@/styles/reset.scss');
+@import url('/@/styles/index.scss');
 .app {
   display: flex;
   align-items: center;

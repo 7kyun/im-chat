@@ -9,22 +9,21 @@
         @search="onSearch"
       />
     </div>
-
     <div class="main">
-      <div v-for="item in list" :key="item.id" :class="{ msg: true, active: item.id == 1 }">
+      <div v-for="item in list" :key="item.id" :class="{ msg: true, active: (item.gid && activeRoom.gid === item.id) || (item.fuid && activeRoom.fuid === item.id) }" @click="onMessageChange(item)">
         <a-badge class="msg-badge" :dot="true">
-          <img class="avatar" :src="item.avatar" alt="" />
+          <img v-if="item.avatar" class="avatar" :src="`${OSS_URL}/${item.avatar}`" alt="" />
+          <img v-else class="avatar" :src="`${OSS_URL}/avatar/group.jpg`" alt="" />
         </a-badge>
         <div class="info">
-          <div class="name">{{ item.username }}</div>
+          <div class="name">{{ item.username || item.groupName }}</div>
           <div class="content" v-if="item.messages">
-            <span v-if="item.messages[0].messageType == 'text'" class="text" >{{ item.messages[0].content }}</span>
-            <span v-if="item.messages[0].messageType == 'image'" class="image">[图片]</span>
+            <span v-if="item.messages[item.messages.length - 1].messageType == 'text'" class="text" >{{ item.messages[item.messages.length - 1].content }}</span>
+            <span v-if="item.messages[item.messages.length - 1].messageType == 'image'" class="image">[图片]</span>
           </div>
         </div>
       </div>
     </div>
-  
   </div>
 </template>
 
@@ -32,6 +31,7 @@
 import { Friend, Group } from '../types/chat'
 import { computed, defineComponent, reactive, ref } from 'vue'
 import { useStore } from 'vuex'
+import { OSS_URL } from '../utils/config'
 
 export default defineComponent({
   name: 'MessageList',
@@ -39,21 +39,25 @@ export default defineComponent({
     const store = useStore()
 
     // 获取所有消息列表
+    const activeRoom = computed(() => store.state.chat.activeRoom)
     const friendMap = computed(() => store.state.chat.friendMap)
     const groupMap = computed(() => store.state.chat.groupMap)
+    
     let allList = [...friendMap.value, ...groupMap.value]
-    allList = allList.filter(v => v)
-    allList = allList.sort((a: Group | Friend, b: Group | Friend) => {
-      if (a.messages && b.messages) {
-        return b.messages[b.messages.length - 1].createdAt - a.messages[a.messages.length - 1].createdAt;
-      }
-      if (a.messages) {
-        return -1;
-      }
-      return 1;
-    })
 
-    const list = ref(allList)
+    const list = computed(() => {
+      allList = allList.filter(v => v)
+      allList = allList.sort((a: Group | Friend, b: Group | Friend) => {
+        if (a.messages && b.messages) {
+          return b.messages[b.messages.length - 1].createdAt - a.messages[a.messages.length - 1].createdAt;
+        }
+        if (a.messages) {
+          return -1;
+        }
+        return 1;
+      })
+      return allList
+    })
 
     const keyword = ref<string>('')
     const onSearch = () => {
@@ -61,10 +65,18 @@ export default defineComponent({
       console.log(keyword.value)
     }
 
+    const onMessageChange = (item: Friend | Group) => {
+      console.log(item)
+      store.commit('chat/set_active_room', item)
+    }
+
     return {
+      OSS_URL,
       keyword,
       onSearch,
-      list
+      activeRoom,
+      list,
+      onMessageChange
     }
   }
 })
@@ -123,18 +135,18 @@ export default defineComponent({
         width: 75%;
         .name {
           font-size: 14px;
-          overflow: hidden; //超出的文本隐藏
-          text-overflow: ellipsis; //溢出用省略号显示
-          white-space: nowrap; //溢出不换行
+          overflow: hidden; // 超出的文本隐藏
+          text-overflow: ellipsis; // 溢出用省略号显示
+          white-space: nowrap; // 溢出不换行
         }
         .content {
           color: rgb(255, 255, 255, 0.6);
           font-size: 12px;
           > * {
             display: block;
-            overflow: hidden; //超出的文本隐藏
-            text-overflow: ellipsis; //溢出用省略号显示
-            white-space: nowrap; //溢出不换行
+            overflow: hidden; // 超出的文本隐藏
+            text-overflow: ellipsis; // 溢出用省略号显示
+            white-space: nowrap; // 溢出不换行
           }
         }
       }

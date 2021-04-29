@@ -1,0 +1,1 @@
+export const OSS_URL = import.meta.env.VITE_APP_OSS_URL
