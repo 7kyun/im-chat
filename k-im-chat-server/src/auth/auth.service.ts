@@ -8,6 +8,8 @@ import { RegisterDto } from 'src/modules/user/dtos/register.dto';
 import { UserDto } from 'src/modules/user/dtos/user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { GroupMap } from 'src/modules/group/entity/group.entity';
+import { getNow } from 'src/utils/util';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +17,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(GroupMap)
+    private readonly groupMapRepository: Repository<GroupMap>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -100,7 +104,19 @@ export class AuthService {
     }
     try {
       registerDto.password = hashPassword;
-      const data = await this.userRepository.create(registerDto).save();
+      const data = await this.userRepository
+        .create({
+          ...registerDto,
+          avatar: `avatar/default-${Math.ceil(Math.random() * 12)}.jpeg`,
+          createdAt: getNow(),
+        })
+        .save();
+      // 加入默认群组
+      this.groupMapRepository.save({
+        gid: 1,
+        uid: data.id,
+        createdAt: getNow(),
+      });
       const token = this.createToken(data);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, salt, ...user } = data;

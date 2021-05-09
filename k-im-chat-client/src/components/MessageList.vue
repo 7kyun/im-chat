@@ -10,7 +10,15 @@
       />
     </div>
     <div class="main">
-      <div v-for="item in list" :key="item.id" :class="{ msg: true, active: (item.gid && activeRoom.gid === item.id) || (item.fuid && activeRoom.fuid === item.id) }" @click="onMessageChange(item)">
+      <div
+        v-for="item in list"
+        :key="item.id"
+        :class="{
+          msg: true,
+          active: activeRoom && ((item.gid && activeRoom.gid === item.id) || (item.fuid && activeRoom.fuid === item.id))
+        }"
+        @click="onMessageChange(item)"
+      >
         <a-badge class="msg-badge" :dot="true">
           <img v-if="item.avatar" class="avatar" :src="`${OSS_URL}/${item.avatar}`" alt="" />
           <img v-else class="avatar" :src="`${OSS_URL}/avatar/group.jpg`" alt="" />
@@ -46,8 +54,7 @@ export default defineComponent({
     let allList = [...friendMap.value, ...groupMap.value]
 
     const list = computed(() => {
-      allList = allList.filter(v => v)
-      allList = allList.sort((a: Group | Friend, b: Group | Friend) => {
+      let allList = [...friendMap.value, ...groupMap.value].filter(v => v).sort((a: Group | Friend, b: Group | Friend) => {
         if (a.messages && b.messages) {
           return b.messages[b.messages.length - 1].createdAt - a.messages[a.messages.length - 1].createdAt;
         }

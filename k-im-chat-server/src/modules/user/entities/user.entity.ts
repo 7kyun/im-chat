@@ -20,7 +20,7 @@ export class User extends Base {
 
   @Column({
     comment: '头像',
-    default: 'default.png',
+    default: `avatar/default-1.png`,
   })
   avatar: string;
 

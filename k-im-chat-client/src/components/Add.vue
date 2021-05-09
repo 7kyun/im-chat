@@ -37,7 +37,7 @@
               <a-list-item>
                 <a-card hoverable >
                   <div class="user-info">
-                    <a-avatar :src="`http://api.btstu.cn/sjtx/api.php?lx=c1&format=images&${item.id}`" />
+                    <a-avatar :src="`${OSS_URL}/${item.avatar}`" />
                     <span>{{ item.username }}</span>
                     <a-button type="primary" size="small" @click="add(item.id)">添加好友</a-button>
                   </div>
@@ -59,6 +59,7 @@ import {
 import { computed, defineComponent, reactive, ref, toRefs, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 import { getUserList, SearchParams, SearchUser } from '../api/modules/user'
+import { OSS_URL } from '../utils/config'
 
 interface Pagination {
   hideOnSinglePage: boolean;
@@ -150,12 +151,14 @@ export default defineComponent({
       }
     }
     // 点击添加好友
-    const add = (fuid: number) => {
-      socket.value.emit('addFriend', { uid: user.value.id, fuid })
-      // console.log(id)
+    const add = async (fuid: number) => {
+      await socket.value.emit('addFriend', { uid: user.value.id, fuid })
+      await getList()
+
     }
 
     return {
+      OSS_URL,
       visible,
       onClose,
       tabKey,

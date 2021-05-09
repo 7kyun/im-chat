@@ -51,7 +51,6 @@ const actions: ActionTree<ChatState, RootState> = {
       console.log('添加好友', res)
       if (res.code === 200) {
         commit(SET_FRIEND_MAP, res.data)
-        console.log(state)
         message.success(res.msg)
       } else {
         message.error(res.msg)
@@ -85,20 +84,15 @@ const actions: ActionTree<ChatState, RootState> = {
       })
     }
 
-    /**
-     * 由于groupgather和userGather都更新了, 但是activeGather依旧是老对象,
-     * 这里需要根据老的activeGather找到最新的gather对象,这样才能使得vue的watch监听新gather
-     */
-
     let activeRoom = state.activeRoom;
     let groupMap = state.groupMap;
     let friendMap = state.friendMap;
     if (!activeRoom) {
       // 更新完数据没有默认activeRoom
-      return commit(SET_ACTIVE_ROOM, groupMap[1]);
+      return commit(SET_ACTIVE_ROOM, groupMap[1])
     }
-    commit(SET_ACTIVE_ROOM, groupMap[activeRoom.id] || friendMap[activeRoom.id]);
-  },
-};
+    commit(SET_ACTIVE_ROOM, groupMap[activeRoom.id] || friendMap[activeRoom.id])
+  }
+}
 
 export default actions;

@@ -19,26 +19,38 @@
         </li>
       </ul>
     </div>
-    <div class="input"></div>
+    <div class="input">
+      <a-textarea v-model:value="value" placeholder="发表一下你的看法..." :rows="4" />
+      <SendOutlined @click="send" />
+    </div>
   </div>
 </template>
 
 <script lang='ts'>
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
 import { OSS_URL } from '../utils/config'
+import { SendOutlined } from '@ant-design/icons-vue'
 
 export default defineComponent({
   name: 'MessageWrap',
+  components: { SendOutlined },
   setup() {
     const store = useStore()
     const user = computed(() => store.state.app.user)
     const activeRoom = computed(() => store.state.chat.activeRoom)
+    const value = ref('')
+
+    const send = () => {
+      console.log(value.value)
+    }
 
     return {
       OSS_URL,
       user,
-      activeRoom
+      activeRoom,
+      value,
+      send
     }
   }
 })
@@ -126,8 +138,53 @@ export default defineComponent({
   }
 
   .input {
-    height: 50px;
+    display: flex;
+    align-items: center;
+    height: 70px;
     background-color: #fff;
+
+    .anticon {
+      padding: 0 15px;
+      color: #909399;
+      font-size: 30px;
+
+      &:hover {
+        color: #53a8ff;
+      }
+    }
+
+    textarea {
+      resize: none;
+      height: 100%;
+
+      outline: none;
+      box-shadow: none;
+      border: none;
+    }
+
+
+    
+    // 滚动条样式
+    ::-webkit-scrollbar-track-piece {
+      background-color: transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 10px;
+      display: block;
+    }
+    ::-webkit-scrollbar-thumb {
+      height: 50px;
+      background-color: rgba(0, 0, 0, 0.1);
+      outline-offset: -2px;
+      filter: alpha(opacity = 50);
+      -moz-opacity: 0.5;
+      opacity: 0.5;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
   }
 }
 </style>

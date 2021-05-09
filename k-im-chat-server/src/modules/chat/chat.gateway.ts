@@ -14,6 +14,7 @@ import { FriendMessage } from '../friend/entities/friendMessage.entity';
 import { Group, GroupMap } from '../group/entity/group.entity';
 import { GroupMessage } from '../group/entity/groupMessage.entity';
 import { Logger } from '@nestjs/common';
+import { getNow } from 'src/utils/util';
 
 const logger = new Logger('chat.gateway.ts');
 
@@ -22,7 +23,7 @@ export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
-  defalutRoom: string;
+  defaultRoom: string;
 
   constructor(
     @InjectRepository(User)
@@ -36,7 +37,7 @@ export class ChatGateway {
     @InjectRepository(GroupMap)
     private readonly groupMapRepository: Repository<GroupMap>, // @InjectRepository(GroupMessage) // private readonly groupMessageRepository: Repository<GroupMessage>,
   ) {
-    this.defalutRoom = '大厅';
+    this.defaultRoom = '大厅';
   }
 
   // socket 连接钩子
@@ -46,7 +47,7 @@ export class ChatGateway {
     logger.log(`连接成功: uid = ${uid}`);
 
     // 连接默认房间
-    client.join(this.defalutRoom);
+    client.join(this.defaultRoom);
 
     if (uid) {
       // 连接成功后加入自己的 room
@@ -155,7 +156,7 @@ export class ChatGateway {
         groupMessagePromise,
       );
       // 获取群组的数据
-      const gids = groupMap.map((v) => v.id);
+      const gids = groupMap.map((v) => v.gid);
       let groups: GroupDto[] = [];
       if (gids.length) {
         groups = await getRepository(Group)
@@ -222,13 +223,13 @@ export class ChatGateway {
           });
         }
         // 双方都添加好友 并存入数据库
-        await this.friendRepository.save(data);
+        await this.friendRepository.save({ ...data, createdAt: getNow() });
         const friendData = JSON.parse(JSON.stringify(data));
         const fData = {
           uid: friendData.fuid,
           fuid: friendData.uid,
         };
-        await this.friendRepository.save(fData);
+        await this.friendRepository.save({ ...fData, createdAt: getNow() });
 
         const roomId = uid > fuid ? uid + fuid : fuid + uid;
         client.join(roomId + '');
@@ -239,12 +240,18 @@ export class ChatGateway {
             id: friend.id,
             username: friend.username,
             avatar: friend.avatar,
+            fuid: friend.id,
           },
         });
         this.server.to(fuid + '').emit('addFriend', {
           code: 200,
-          message: '被加为好友',
-          data: { id: user.id, username: user.username, avatar: user.avatar },
+          msg: '被加为好友',
+          data: {
+            id: user.id,
+            username: user.username,
+            avatar: user.avatar,
+            fuid: user.id,
+          },
         });
         return;
       } else {

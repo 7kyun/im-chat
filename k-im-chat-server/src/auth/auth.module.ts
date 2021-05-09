@@ -8,10 +8,11 @@ import { PassportModule } from '@nestjs/passport';
 import { HashPasswordMiddleware } from 'src/middlewares/hash-password.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/modules/user/entities/user.entity';
+import { GroupMap } from 'src/modules/group/entity/group.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, GroupMap]),
     PassportModule,
     JwtModule.register({
       secret: configuration.auth.secretKey,
